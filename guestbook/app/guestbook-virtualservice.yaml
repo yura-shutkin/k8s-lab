@@ -1,0 +1,19 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: guestbook-vs
+spec:
+  gateways:
+    - istio-system/default-gateway
+  hosts:
+    - guestbook.local
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: guestbook
+            port:
+              number: 80
