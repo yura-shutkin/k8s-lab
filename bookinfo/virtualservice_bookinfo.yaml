@@ -5,7 +5,7 @@ metadata:
   namespace: bookinfo
 spec:
   hosts: # destinations that these routing rules apply to. VirtualService must be bound to the gateway and must have one or more hosts that match the hosts specified in a server
-    - "*"
+    - bookinfo.local
   gateways:
     - istio-system/bookinfo-gateway # this should match with gateway's name
   http: # L7 load balancing by http path and host, just like K8s ingress resource
@@ -20,6 +20,16 @@ spec:
             exact: /logout
         - uri:
             prefix: /api/v1/products
+      route:
+        - destination:
+            host: productpage # specify service name, either by relative or absolute path
+            port:
+              number: 9080
+    - match:
+        - uri:
+            exact: /favicon.ico
+      rewrite:
+        uri: /static/favicon.ico
       route:
         - destination:
             host: productpage # specify service name, either by relative or absolute path

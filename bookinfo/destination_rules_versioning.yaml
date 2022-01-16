@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: reviews
+  namespace: bookinfo
+spec:
+  host: reviews # interpreted as reviews.svc.cluster.local
+  subsets: # One or more named sets that represent individual versions of a service. Traffic policies can be overridden at subset level.
+  - name: v1
+    labels:
+      version: v1 # label attached to Pod definition
+  - name: v2
+    labels:
+      version: v2 # label attached to Pod definition
+  - name: v3
+    labels:
+      version: v3 # label attached to Pod definition
