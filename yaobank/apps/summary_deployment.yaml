@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: summary
+  namespace: yaobank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: summary
+  template:
+    metadata:
+      labels:
+        app: summary
+        version: v1
+    spec:
+      serviceAccountName: summary
+      containers:
+        - name: summary
+          image: calico/yaobank-summary:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000

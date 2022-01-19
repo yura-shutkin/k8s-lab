@@ -1,0 +1,13 @@
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: customer
+spec:
+  selector: app == 'customer'
+  ingress:
+    - action: Allow
+      http:
+        methods: ["GET"]
+  egress:
+    - action: Allow

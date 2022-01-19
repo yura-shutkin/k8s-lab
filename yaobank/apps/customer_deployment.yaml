@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer
+  namespace: yaobank
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+  template:
+    metadata:
+      labels:
+        app: customer
+        version: v1
+    spec:
+      serviceAccountName: customer
+      containers:
+        - name: customer
+          image: calico/yaobank-customer:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000

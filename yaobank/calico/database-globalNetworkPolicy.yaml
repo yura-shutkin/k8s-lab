@@ -1,0 +1,14 @@
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: database
+spec:
+  selector: app == 'database'
+  ingress:
+    - action: Allow
+      source:
+        serviceAccounts:
+          names: ["summary"]
+  egress:
+    - action: Allow
