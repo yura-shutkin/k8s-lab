@@ -1,0 +1,20 @@
+---
+apiVersion: crd.projectcalico.org/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-everything-in-istio-system-ns
+  namespace: istio-system
+spec:
+  order: 10
+  selector: projectcalico.org/namespace == "istio-system"
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Log
+    - action: Allow
+      protocol: TCP
+  egress:
+    - action: Log
+    - action: Allow
+      protocol: TCP

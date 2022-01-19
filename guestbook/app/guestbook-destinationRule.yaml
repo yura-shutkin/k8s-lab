@@ -3,7 +3,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: guestbook
-  namespace: istio-system
+  namespace: guestbook
 spec:
   host: guestbook.guestbook.svc.cluster.local
   trafficPolicy:
