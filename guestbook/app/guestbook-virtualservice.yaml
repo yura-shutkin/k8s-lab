@@ -2,10 +2,11 @@
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: guestbook-vs
+  name: guestbook
+  namespace: guestbook
 spec:
   gateways:
-    - istio-system/default-gateway
+    - istio-system/guestbook-gateway
   hosts:
     - guestbook.local
   http:

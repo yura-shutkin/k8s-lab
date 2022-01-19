@@ -8,10 +8,11 @@ metadata:
   namespace: guestbook
 spec:
   ports:
-    - port: 80
+    - name: http
+      port: 80
       protocol: TCP
       targetPort: http-server
   selector:
     app: guestbook
   sessionAffinity: None
-  # type: NodePort
+  type: ClusterIP
