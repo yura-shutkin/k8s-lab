@@ -409,9 +409,11 @@ spec:
   - name: http
     protocol: TCP
     port: 20001
+    targetPort: 20001
   - name: http-metrics
     protocol: TCP
     port: 9090
+    targetPort: 9090
   selector:
     app.kubernetes.io/name: kiali
     app.kubernetes.io/instance: kiali
