@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu
+  labels:
+    app: ubuntu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9407"
+    spec:
+      containers:
+        - name: ubuntu
+          image: ubuntu:20.04
+          command:
+            - sleep
+          args:
+            - "86400"
+          ports:
+            - containerPort: 9407

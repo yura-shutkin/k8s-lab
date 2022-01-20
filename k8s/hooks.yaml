@@ -1,0 +1,10 @@
+---
+- id: cluster-config
+  execute-command: make
+  pass-arguments-to-command:
+    - source: string
+      name: --no-print-directory
+    - source: string
+      name: cluster-show-config
+  include-command-output-in-response: true
+  include-command-output-in-response-on-error: true

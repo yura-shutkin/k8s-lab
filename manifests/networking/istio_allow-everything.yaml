@@ -1,0 +1,12 @@
+---
+apiVersion: crd.projectcalico.org/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-everything
+  namespace: istio-system
+spec:
+  # selector: service == 'guestbook'
+  ingress:
+    - action: Allow
+  egress:
+    - action: Allow
