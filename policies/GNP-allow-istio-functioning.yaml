@@ -1,0 +1,32 @@
+---
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: allow-istio-config
+spec:
+  selector: all()
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Allow
+      protocol: TCP
+      destination:
+        namespaceSelector: name == "istio-system"
+        ports:
+          - 8060
+          - 9090
+          - 9093
+          - 15000:15090
+          - 42422
+  egress:
+    - action: Allow
+      protocol: TCP
+      destination:
+        namespaceSelector: name == "istio-system"
+        ports:
+          - 8060
+          - 9090
+          - 9093
+          - 15000:15090
+          - 42422

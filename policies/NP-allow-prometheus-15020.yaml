@@ -2,19 +2,19 @@
 apiVersion: crd.projectcalico.org/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-everything-in-guestbook-ns
+  name: allow-prometheus
   namespace: guestbook
 spec:
   order: 10
-  selector: projectcalico.org/namespace == "guestbook"
   types:
     - Ingress
     - Egress
-  ingress:
-    - action: Log
-    - action: Allow
-      protocol: TCP
   egress:
     - action: Log
     - action: Allow
       protocol: TCP
+      # destination:
+      #   namespaceSelector: projectcalico.org/name == "istio-system"
+      source:
+        ports:
+          - 15020

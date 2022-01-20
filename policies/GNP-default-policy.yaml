@@ -2,23 +2,22 @@
 apiVersion: crd.projectcalico.org/v1
 kind: GlobalNetworkPolicy
 metadata:
-  name: default-deny
+  name: default-policy
 spec:
-  order: 0
-  selector: projectcalico.org/namespace != "kube-system"
+  namespaceSelector: has(projectcalico.org/name) && projectcalico.org/name not in {"kube-system", "calico-system"}
   types:
-    - Ingress
     - Egress
+    - Ingress
   egress:
     - action: Allow
-      protocol: UDP
+      protocol: UDP  
       destination:
         selector: k8s-app == "kube-dns"
-        ports:
+        ports: 
           - 53
     - action: Allow
       protocol: TCP
       destination:
         selector: k8s-app == "kube-dns"
-        ports:
+        ports: 
           - 53
