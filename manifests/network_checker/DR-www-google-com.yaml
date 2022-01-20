@@ -1,0 +1,18 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: www-google-com
+  namespace: guestbook
+spec:
+  host: www.google.com
+  subsets:
+    - name: tls-origination
+      trafficPolicy:
+        loadBalancer:
+          simple: ROUND_ROBIN
+        portLevelSettings:
+          - port:
+              number: 443
+            tls:
+              mode: SIMPLE
