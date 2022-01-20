@@ -1,13 +1,13 @@
 ---
-apiVersion: crd.projectcalico.org/v1
+apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
-  name: default-policy
+  name: allow-dns
 spec:
-  namespaceSelector: has(projectcalico.org/name) && projectcalico.org/name not in {"kube-system", "calico-system"}
+  selector: all()
+  order: 1000
   types:
     - Egress
-    - Ingress
   egress:
     - action: Allow
       protocol: UDP  
