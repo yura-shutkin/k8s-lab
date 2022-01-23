@@ -2,25 +2,33 @@
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
-  name: yaobank-ns
-  namespace: yaobank
+  name: guestbook-to-yaobank
+  namespace: guestbook
 spec:
-  order: 100
-  selector: all()  # default
+  order: 110
+  selector: app == "ubuntu" || app == "debug"
   types:
     - Ingress
     - Egress
   ingress:
     - action: Log
+
     - action: Allow
-      source:
-        namespaceSelector: projectcalico.org/name == "yaobank"
+      protocol: TCP
       destination:
         namespaceSelector: projectcalico.org/name == "yaobank"
+        selector: app == "customer"
+      http:
+        methods:
+          - GET
+        paths:
+          - prefix: "/"
+
   egress:
     - action: Log
+
     - action: Allow
-      source:
-        namespaceSelector: projectcalico.org/name == "yaobank"
+      protocol: TCP
       destination:
         namespaceSelector: projectcalico.org/name == "yaobank"
+        selector: app == "customer"

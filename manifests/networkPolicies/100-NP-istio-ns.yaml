@@ -18,6 +18,8 @@ spec:
       ports:
         - port: 15012
           protocol: TCP
+        - port: 15090
+          protocol: TCP
 
   egress:
     - to:

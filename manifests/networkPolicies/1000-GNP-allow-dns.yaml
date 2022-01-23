@@ -10,14 +10,14 @@ spec:
     - Egress
   egress:
     - action: Allow
-      protocol: UDP  
+      protocol: UDP
       destination:
         selector: k8s-app == "kube-dns"
-        ports: 
+        ports:
           - 53
     - action: Allow
       protocol: TCP
       destination:
         selector: k8s-app == "kube-dns"
-        ports: 
+        ports:
           - 53
