@@ -2,28 +2,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ubuntu
+  name: debug
   labels:
-    app: ubuntu
+    app: debug
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ubuntu
+      app: debug
   template:
     metadata:
       labels:
-        app: ubuntu
+        app: debug
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9407"
     spec:
       containers:
-        - name: ubuntu
-          image: ubuntu:20.04
+        - name: debug
+          image: markeijsermans/debug:kitchen-sink
           command:
             - sleep
           args:
-            - "infinity"
+            - "864000"
           ports:
             - containerPort: 9407
