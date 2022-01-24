@@ -1,0 +1,20 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: istiod-access
+  namespace: istio-system
+spec:
+  selector: app == "istiod"
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Log
+    - action: Allow
+      destination:
+        selector: app == "istiod"
+
+  egress:
+    - action: Log
+    - action: Allow

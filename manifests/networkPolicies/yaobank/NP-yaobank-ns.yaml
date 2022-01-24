@@ -5,7 +5,6 @@ metadata:
   name: yaobank-ns
   namespace: yaobank
 spec:
-  order: 100
   selector: all()  # default
   types:
     - Ingress
@@ -17,6 +16,10 @@ spec:
         namespaceSelector: projectcalico.org/name == "yaobank"
       destination:
         namespaceSelector: projectcalico.org/name == "yaobank"
+    - action: Allow
+      source:
+        namespaceSelector: projectcalico.org/name == "istio-system"
+        selector: app == "istiod"
   egress:
     - action: Log
     - action: Allow
@@ -24,3 +27,7 @@ spec:
         namespaceSelector: projectcalico.org/name == "yaobank"
       destination:
         namespaceSelector: projectcalico.org/name == "yaobank"
+    - action: Allow
+      destination:
+        namespaceSelector: projectcalico.org/name == "istio-system"
+        selector: app == "istiod"

@@ -1,0 +1,25 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: istio-system-ns
+  namespace: istio-system
+spec:
+  selector: all()  # default
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Log
+    - action: Allow
+      source:
+        namespaceSelector: projectcalico.org/name == "istio-system"
+      destination:
+        namespaceSelector: projectcalico.org/name == "istio-system"
+  egress:
+    - action: Log
+    - action: Allow
+      source:
+        namespaceSelector: projectcalico.org/name == "istio-system"
+      destination:
+        namespaceSelector: projectcalico.org/name == "istio-system"

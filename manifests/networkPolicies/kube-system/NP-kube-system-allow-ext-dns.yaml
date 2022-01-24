@@ -1,0 +1,33 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-external-dns
+  namespace: kube-system
+spec:
+  selector: k8s-app == "kube-dns"
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Log
+    - action: Allow
+      destination:
+        selector: k8s-app == "kube-dns"
+
+  egress:
+    - action: Log
+    - action: Allow
+      protocol: UDP
+      destination:
+        nets:
+          - "8.8.8.8/32"
+        ports:
+          - 53
+    - action: Allow
+      protocol: TCP
+      destination:
+        nets:
+          - "8.8.8.8/32"
+        ports:
+          - 53

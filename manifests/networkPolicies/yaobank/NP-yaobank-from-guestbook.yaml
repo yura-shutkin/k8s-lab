@@ -5,7 +5,6 @@ metadata:
   name: yaobank-from-guestbook
   namespace: yaobank
 spec:
-  order: 110
   selector: app == "customer"
   types:
     - Ingress
