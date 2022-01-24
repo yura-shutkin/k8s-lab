@@ -1,0 +1,27 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: access-to-www-google-com
+  namespace: istio-system
+spec:
+  selector: app == "istio-egressgateway"
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Log
+
+    - action: Allow
+      protocol: TCP
+      destination:
+        selector: dr == "www-google-com"
+
+  egress:
+    - action: Log
+
+    - action: Allow
+      protocol: TCP
+      destination:
+        namespaceSelector: projectcalico.org/name == "guestbook"
+        selector: app == "ubuntu" || app == "debug"

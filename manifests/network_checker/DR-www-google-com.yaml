@@ -4,6 +4,8 @@ kind: DestinationRule
 metadata:
   name: www-google-com
   namespace: guestbook
+  labels:
+    dr: www-google-com
 spec:
   host: www.google.com
   subsets:

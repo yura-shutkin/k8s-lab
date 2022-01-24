@@ -4,6 +4,8 @@ kind: ServiceEntry
 metadata:
   name: www-google-com
   namespace: guestbook
+  labels:
+    dr: www-google-com
 spec:
   hosts:
     - www.google.com
