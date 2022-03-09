@@ -1,4 +1,4 @@
-LISTEN_IP=192.168.1.1
+LISTEN_IP=127.0.0.1
 CLUSTER_LISTEN_PORT=13000
 WEBHOOK_LISTEN_PORT=13001
 CLUSTER_NAME=calico
@@ -42,3 +42,20 @@ webhook-start: ## Start webhook
 .PHONY: webhook-stop
 webhook-stop: ## Stop webhook
 	@cat webhook.pid | xargs kill
+
+### Colima (Docker)
+.PHONY: colima-create
+CPU=2
+MEM=6
+DNS=8.8.8.8
+IP=127.0.0.1
+ARCH=x86_64
+DISK_SIZE=20
+PROFILE=calico-istio
+colima-create: ## Create colima VM
+	@colima start --cpu $(CPU) --memory $(MEM) --dns $(DNS) --arch $(ARCH) --disk $(DISK_SIZE) --profile $(PROFILE)
+
+.PHONY: colima-delete
+PROFILE=calico-istio
+colima-delete: ## Delete colima VM
+	@colima delete --profile $(PROFILE) --force
