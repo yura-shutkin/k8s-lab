@@ -98,7 +98,7 @@ spec:
     name: http
   selector:
     app: ratings
-  type: NodePort  # if using K8s ingress, type needs to be NodePort. If using Istio, can be default ClusterIP
+  type: ClusterIP  # if using K8s ingress, type needs to be NodePort. If using Istio, can be default ClusterIP
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -153,7 +153,7 @@ spec:
     name: http
   selector:
     app: reviews
-  type: NodePort  # if using K8s ingress, type needs to be NodePort. If using Istio, can be default ClusterIP
+  type: ClusterIP  # if using K8s ingress, type needs to be NodePort. If using Istio, can be default ClusterIP
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -303,7 +303,7 @@ spec:
     name: http
   selector:
     app: productpage
-  type: NodePort  # if using K8s ingress, type needs to be NodePort. If using Istio, can be default ClusterIP
+  type: ClusterIP  # if using K8s ingress, type needs to be NodePort. If using Istio, can be default ClusterIP
 ---
 apiVersion: v1
 kind: ServiceAccount
