@@ -1,0 +1,31 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: filter-ratelimit-svc
+  namespace: istio-system
+spec:
+  workloadSelector:
+    # select by label in the same namespace
+    labels:
+      istio: ingressgateway
+  configPatches:
+    # The Envoy config you want to modify
+    - applyTo: VIRTUAL_HOST
+      match:
+        context: GATEWAY
+        routeConfiguration:
+          vhost:
+            name: ""
+            route:
+              action: ANY
+      patch:
+        operation: MERGE
+        # Applies the rate limit rules.
+        value:
+          # rate_limits: []
+          rate_limits:
+            - actions: # any actions in here
+                - request_headers:
+                    header_name: ":path"
+                    descriptor_key: "PATH"

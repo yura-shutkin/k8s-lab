@@ -1,0 +1,321 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ratelimiter
+  labels:
+    istio-injection: enabled
+
+---
+# Copyright Istio Authors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+##################################################################################################
+# Redis service and deployment
+# Ratelimit service and deployment
+
+# Note: a configmap is needed to make the rate limit deployment work properly, for example:
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ratelimit-config
+  namespace: ratelimiter
+data:
+  config.yaml: |
+    domain: productpage-ratelimit
+    descriptors:
+      - key: PATH
+        value: "/productpage"
+        rate_limit:
+          unit: minute
+          requests_per_unit: 30
+      - key: PATH
+        value: "/"
+        rate_limit:
+          unit: minute
+          requests_per_unit: 2
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: statsd-config
+  namespace: ratelimiter
+data:
+  conf.yaml: |
+    mappings: # Requires statsd exporter >= v0.6.0 since it uses the "drop" action.
+      - match: "ratelimit.service.rate_limit.*.*.near_limit"
+        name: "ratelimit_service_rate_limit_near_limit"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+      - match: "ratelimit.service.rate_limit.*.*.over_limit"
+        name: "ratelimit_service_rate_limit_over_limit"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+      - match: "ratelimit.service.rate_limit.*.*.total_hits"
+        name: "ratelimit_service_rate_limit_total_hits"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+      - match: "ratelimit.service.rate_limit.*.*.within_limit"
+        name: "ratelimit_service_rate_limit_within_limit"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+
+      - match: "ratelimit.service.rate_limit.*.*.*.near_limit"
+        name: "ratelimit_service_rate_limit_near_limit"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+          key2: "$3"
+      - match: "ratelimit.service.rate_limit.*.*.*.over_limit"
+        name: "ratelimit_service_rate_limit_over_limit"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+          key2: "$3"
+      - match: "ratelimit.service.rate_limit.*.*.*.total_hits"
+        name: "ratelimit_service_rate_limit_total_hits"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+          key2: "$3"
+      - match: "ratelimit.service.rate_limit.*.*.*.within_limit"
+        name: "ratelimit_service_rate_limit_within_limit"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+          key2: "$3"
+
+      - match: "ratelimit.service.call.should_rate_limit.*"
+        name: "ratelimit_service_should_rate_limit_error"
+        match_metric_type: counter
+        labels:
+          err_type: "$1"
+
+      - match: "ratelimit_server.*.total_requests"
+        name: "ratelimit_service_total_requests"
+        match_metric_type: counter
+        labels:
+          grpc_method: "$1"
+
+      - match: "ratelimit_server.*.response_time"
+        name: "ratelimit_service_response_time_seconds"
+        timer_type: histogram
+        labels:
+          grpc_method: "$1"
+
+      - match: "ratelimit.service.config_load_success"
+        name: "ratelimit_service_config_load_success"
+        match_metric_type: counter
+      - match: "ratelimit.service.config_load_error"
+        name: "ratelimit_service_config_load_error"
+        match_metric_type: counter
+
+      - match: "ratelimit.service.rate_limit.*.*.*.shadow_mode"
+        name: "ratelimit_service_rate_limit_shadow_mode"
+        timer_type: "histogram"
+        labels:
+          domain: "$1"
+          key1: "$2"
+          key2: "$3"
+
+      # Enable below in production once you have the metrics you need
+      # - match: "."
+      #   match_type: "regex"
+      #   action: "drop"
+      #   name: "dropped"
+
+##################################################################################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+  namespace: ratelimiter
+spec:
+  ports:
+    - name: redis
+      port: 6379
+  selector:
+    app: redis
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis
+  namespace: ratelimiter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        # sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - image: redis:6.2.6-bullseye
+          imagePullPolicy: Always
+          name: redis
+          ports:
+            - name: redis
+              containerPort: 6379
+          resources:
+            limits:
+              cpu: 300m
+              memory: 512Mi
+            requests:
+              cpu: 300m
+              memory: 512Mi
+      restartPolicy: Always
+      serviceAccountName: ""
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ratelimit
+  labels:
+    app: ratelimit
+  namespace: ratelimiter
+spec:
+  ports:
+    - name: http-port
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: grpc-port
+      port: 8081
+      targetPort: 8081
+      protocol: TCP
+    - name: http-debug
+      port: 6070
+      targetPort: 6070
+      protocol: TCP
+  selector:
+    app: ratelimit
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratelimit
+  namespace: ratelimiter
+  labels:
+    app: ratelimit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ratelimit
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ratelimit
+        # sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - image: envoyproxy/ratelimit:8d6488ea # 01.25.2022 https://hub.docker.com/r/envoyproxy/ratelimit/tags
+          imagePullPolicy: Always
+          name: ratelimit
+          command: ["/bin/ratelimit"]
+          env:
+            - name: LOG_LEVEL
+              value: trace
+            - name: REDIS_SOCKET_TYPE
+              value: tcp
+            - name: REDIS_URL
+              value: redis:6379
+            - name: USE_STATSD
+              value: "true"
+            - name: STATSD_HOST
+              value: localhost
+            - name: STATSD_PORT
+              value: "9125"
+            - name: RUNTIME_ROOT
+              value: /data
+            - name: RUNTIME_SUBDIRECTORY
+              value: ratelimit
+            - name: RUNTIME_WATCH_ROOT
+              value: "false"
+            - name: RUNTIME_IGNOREDOTFILES
+              value: "true"
+            - name: HOST
+              value: "::"
+            - name: GRPC_HOST
+              value: "::"
+          ports:
+            - containerPort: 8080
+            - containerPort: 8081
+            - containerPort: 6070
+          volumeMounts:
+            - name: ratelimit-config-volume
+              mountPath: /data/ratelimit/config
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+        - image: prom/statsd-exporter:v0.18.0
+          imagePullPolicy: Always
+          name: statsd-exporter
+          args:
+            - "--statsd.mapping-config=/etc/statsd-exporter/conf.yaml"
+            - "--log.level=debug"
+          ports:
+            - containerPort: 9125
+            - containerPort: 9102
+          volumeMounts:
+            - name: statsd-config-volume
+              mountPath: /etc/statsd-exporter
+          resources:
+            limits:
+              cpu: 100m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+      volumes:
+        - name: ratelimit-config-volume
+          configMap:
+            name: ratelimit-config
+        - name: statsd-config-volume
+          configMap:
+            name: statsd-config
+
