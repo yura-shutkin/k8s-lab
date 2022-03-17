@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis
+  namespace: ratelimiter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        # sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - image: redis:6.2.6-bullseye
+          imagePullPolicy: Always
+          name: redis
+          ports:
+            - name: redis
+              containerPort: 6379
+          resources:
+            limits:
+              cpu: 300m
+              memory: 512Mi
+            requests:
+              cpu: 300m
+              memory: 512Mi
+      restartPolicy: Always
+      serviceAccountName: ""
