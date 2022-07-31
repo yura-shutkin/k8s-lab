@@ -4,10 +4,10 @@ WEBHOOK_LISTEN_PORT=13001
 CLUSTER_NAME=calico
 
 .PHONY: cluster-create
-AGENTS=2
+AGENTS_COUNT=2
 MEMORY=4G
 cluster-create: ## Create cluster
-	@k3d cluster create $(CLUSTER_NAME) --agents $(AGENTS) --agents-memory $(MEMORY) --k3s-arg "--disable=traefik@server:0" --k3s-arg "--flannel-backend=none@server:*" --api-port $(LISTEN_IP):$(CLUSTER_LISTEN_PORT) --volume "$(shell pwd)/$(CLUSTER_NAME).yaml:/var/lib/rancher/k3s/server/manifests/$(CLUSTER_NAME).yaml"
+	@k3d cluster create $(CLUSTER_NAME) --agents $(AGENTS_COUNT) --agents-memory $(MEMORY) --k3s-arg "--disable=traefik@server:0" --k3s-arg "--flannel-backend=none@server:*" --api-port $(LISTEN_IP):$(CLUSTER_LISTEN_PORT) --volume "$(shell pwd)/$(CLUSTER_NAME).yaml:/var/lib/rancher/k3s/server/manifests/$(CLUSTER_NAME).yaml"
 
 .PHONY: cluster-delete
 cluster-delete: ## Delete cluster
@@ -15,6 +15,7 @@ cluster-delete: ## Delete cluster
 
 .PHONY: cluster-recreate
 cluster-recreate: ## Recreate cluster
+	@$(MAKE) cluster-stop
 	@$(MAKE) cluster-delete
 	@$(MAKE) cluster-create
 
