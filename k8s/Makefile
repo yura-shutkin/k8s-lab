@@ -15,38 +15,42 @@ help: ## 			Show this help
 ### k3d
 ################################################################################
 
-.PHONY: cluster-create
+.PHONY: k3d-create
 AGENTS_COUNT=2
 MEMORY=4G
-cluster-create: ##		Create cluster
+k3d-create: ##		Create k3d cluster
 	@k3d cluster create $(CLUSTER_NAME) --agents $(AGENTS_COUNT) --agents-memory $(MEMORY) --k3s-arg "--disable=traefik@server:0" --k3s-arg "--flannel-backend=none@server:*" --api-port $(LISTEN_IP):$(CLUSTER_LISTEN_PORT) --volume "$(shell pwd)/$(CLUSTER_NAME).yaml:/var/lib/rancher/k3s/server/manifests/$(CLUSTER_NAME).yaml"
 
-.PHONY: cluster-delete
-cluster-delete: ##		Delete cluster
+.PHONY: k3d-delete
+k3d-delete: ##		Delete k3d cluster
 	@k3d cluster delete $(CLUSTER_NAME)
 
-.PHONY: cluster-recreate
-cluster-recreate: ##	Recreate cluster
+.PHONY: k3d-recreate
+k3d-recreate: ##		Recreate k3d cluster
 	@$(MAKE) cluster-stop
 	@$(MAKE) cluster-delete
 	@$(MAKE) cluster-create
 
-.PHONY: cluster-stop
-cluster-stop: ##		Stop cluster
+.PHONY: k3d-stop
+k3d-stop: ##		Stop k3d cluster
 	@k3d cluster stop $(CLUSTER_NAME)
 
-.PHONY: cluster-start
-cluster-start: ##		Start cluster
+.PHONY: k3d-start
+k3d-start: ##		Start k3d cluster
 	@k3d cluster start $(CLUSTER_NAME)
 
-.PHONY: cluster-restart
-cluster-restart: ##		Restart cluster
+.PHONY: k3d-restart
+k3d-restart: ##		Restart k3d cluster
 	@$(MAKE) cluster-stop
 	@$(MAKE) cluster-start
 
-.PHONY: cluster-show-config
-cluster-show-config: ##	Show cluster creds
+.PHONY: k3d-show-config
+k3d-show-config: ##		Show k3d cluster creds
 	@k3d kubeconfig get $(CLUSTER_NAME)
+
+.PHONY: k3d-list
+k3d-list: ##		List k3d clusters
+	@k3d cluster list
 
 ################################################################################
 ### Webhook
@@ -109,6 +113,10 @@ minikube-pause: ##		Pause cluster in minikube
 .PHONY: minikube-unpause
 minikube-unpause: ##	Unpause cluster in minikube
 	@minikube -p $(CLUSTER_NAME) unpause
+
+.PHONY: minikube-profiles
+minikube-profiles: ##	Show minikube profiles
+	@minikube profile list
 
 ################################################################################
 ### Calico
