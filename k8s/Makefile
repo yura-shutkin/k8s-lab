@@ -129,7 +129,7 @@ calico-download: ##		Download version of calico CALICO_VERSION=v1.22 (yes only m
 	@curl https://projectcalico.docs.tigera.io/archive/$(CALICO_VERSION)/manifests/calico.yaml -o calico-$(CALICO_VERSION).yaml
 
 .PHONY: calico-install
-calico-install: ##		Install version of calico
+calico-install: ##		Install version of calico. You can use CALICO_VERSION=v3.23 to specify version
 	@if [ ! -f "calico-$(CALICO_VERSION).yaml" ]; then $(MAKE) calico-download; fi
 	@kubectl apply -f calico-$(CALICO_VERSION).yaml
 
