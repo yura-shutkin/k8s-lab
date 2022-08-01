@@ -88,27 +88,27 @@ colima-delete: ##		Delete colima VM
 NODES_COUNT=2
 CPUS=2
 minikube-create: ##		Create cluster in minikube
-	@minikube -p $(CLUSTE_NAME) start --cpus=$(CPUS) --memory=$(MEMORY) --driver=docker --network-plugin=cni
+	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --memory=$(MEMORY) --driver=docker --network-plugin=cni
 
 .PHONY: minikube-delete
 minikube-delete: ##		Delete cluster in minikube
-	@minikube -p $(CLUSTE_NAME) delete
+	@minikube -p $(CLUSTER_NAME) delete
 
 .PHONY: minikube-stop
 minikube-stop: ## 		Stop cluster in minikube
-	@minikube -p $(CLUSTE_NAME) stop
+	@minikube -p $(CLUSTER_NAME) stop
 
 .PHONY: minikube-start
 minikube-start: ##		Start cluster in minikube
-	@minikube -p $(CLUSTE_NAME) start
+	@minikube -p $(CLUSTER_NAME) start
 
 .PHONY: minikube-pause
 minikube-pause: ##		Pause cluster in minikube
-	@minikube -p $(CLUSTE_NAME) pause
+	@minikube -p $(CLUSTER_NAME) pause
 
 .PHONY: minikube-unpause
 minikube-unpause: ##	Unpause cluster in minikube
-	@minikube -p $(CLUSTE_NAME) unpause
+	@minikube -p $(CLUSTER_NAME) unpause
 
 ################################################################################
 ### Calico
