@@ -90,6 +90,10 @@ CPUS=2
 minikube-create: ##		Create cluster in minikube
 	@minikube -p $(CLUSTE_NAME) start --cpus=$(CPUS) --memory=$(MEMORY) --driver=docker --network-plugin=cni
 
+.PHONY: minikube-delete
+minikube-delete: ##		Delete cluster in minikube
+	@minikube -p $(CLUSTE_NAME) delete
+
 .PHONY: minikube-stop
 minikube-stop: ## 		Stop cluster in minikube
 	@minikube -p $(CLUSTE_NAME) stop
