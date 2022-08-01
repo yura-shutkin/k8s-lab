@@ -19,7 +19,7 @@ help: ## 			Show this help
 AGENTS_COUNT=2
 MEMORY=4G
 k3d-create: ##		Create k3d cluster
-	@k3d cluster create $(CLUSTER_NAME) --agents $(AGENTS_COUNT) --agents-memory $(MEMORY) --k3s-arg "--disable=traefik@server:0" --k3s-arg "--flannel-backend=none@server:*" --api-port $(LISTEN_IP):$(CLUSTER_LISTEN_PORT) --volume "$(shell pwd)/$(CLUSTER_NAME).yaml:/var/lib/rancher/k3s/server/manifests/$(CLUSTER_NAME).yaml"
+	@k3d cluster create $(CLUSTER_NAME) --agents $(AGENTS_COUNT) --agents-memory $(MEMORY) --k3s-arg "--disable=traefik@server:0" --k3s-arg "--flannel-backend=none@server:*" --api-port $(LISTEN_IP):$(CLUSTER_LISTEN_PORT)
 
 .PHONY: k3d-delete
 k3d-delete: ##		Delete k3d cluster
@@ -48,8 +48,8 @@ k3d-restart: ##		Restart k3d cluster
 k3d-show-config: ##		Show k3d cluster creds
 	@k3d kubeconfig get $(CLUSTER_NAME)
 
-.PHONY: k3d-list
-k3d-list: ##		List k3d clusters
+.PHONY: k3d-clusters
+k3d-clusters: ##		List k3d clusters
 	@k3d cluster list
 
 ################################################################################
