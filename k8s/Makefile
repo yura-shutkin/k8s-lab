@@ -91,8 +91,9 @@ colima-delete: ##		Delete colima VM
 .PHONY: minikube-create
 NODES_COUNT=2
 CPUS=2
+KUBERNETES_VERSION=v1.23.8
 minikube-create: ##		Create cluster in minikube
-	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --memory=$(MEMORY) --driver=docker --network-plugin=cni
+	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=docker --network-plugin=cni --kubernetes-version=$(KUBERNETES_VERSION)
 
 .PHONY: minikube-delete
 minikube-delete: ##		Delete cluster in minikube
