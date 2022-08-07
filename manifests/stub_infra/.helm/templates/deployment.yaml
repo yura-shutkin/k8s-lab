@@ -1,0 +1,46 @@
+{{- range $ns, $instances := .Values.instances }}
+{{- range $instance, $params := $instances }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $instance }}
+  namespace: {{ $ns }}
+  labels:
+    app: {{ $instance }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $instance }}
+  template:
+    metadata:
+      labels:
+        app: {{ $instance }}
+      annotations:
+        revision: {{ $.Release.Revision | quote }}
+    spec:
+      containers:
+        - name: {{ $instance }}
+          image: {{ $.Values.image }}
+          ports:
+            - containerPort: {{ $.Values.podPort }}
+          securityContext:
+            {{- $.Values.securityContext | toYaml | nindent 12 }}
+          resources:
+            {{- $.Values.resources | toYaml | nindent 12 }}
+          {{- if (($params).hosts) }}
+            {{- $listHosts := "" }}
+            {{- range $addr := $params.hosts }}
+              {{- if ne (len $listHosts) 0 }}
+                {{- $listHosts = printf "%s;" $listHosts }}
+              {{- end }}
+              {{- $listHosts = printf "%shttp://%s:%s" $listHosts $addr ($.Values.servicePort | toString) }}
+            {{- end }}
+          env:
+            - name: HOSTS
+              value: {{ $listHosts }}
+          {{- end }}
+
+{{- end }}
+{{- end }}

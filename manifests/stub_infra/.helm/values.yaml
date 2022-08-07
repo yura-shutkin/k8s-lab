@@ -1,0 +1,25 @@
+---
+image: "yuriiashutkin/web-app:1.4.0-ubuntu"
+servicePort: 4000
+podPort: 8080
+
+securityContext:
+  runAsGroup: 2000
+  runAsUser: 2000
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+resources:
+  limits:
+    cpu: 50m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+instances:
+  default:
+    myapp:
+      hosts:
+        - myapp.default.svc
