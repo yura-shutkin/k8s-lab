@@ -25,3 +25,12 @@ werf-render: ## 		Render chart
 .PHONY: werf-apply
 werf-apply: ## 		Deploy chart
 	@werf converge --env=$(INFRA_ENV) --namespace=$(RELEASE_NS) --release=$(RELEASE_NAME) --log-debug=$(DEBUG) --parallel-tasks-limit=$(PARALLEL_LIMIT) --dev
+
+################################################################################
+### Helm
+################################################################################
+# __hidethis__ helm upgrade [RELEASE] [CHART] [flags]
+.PHONY: helm-apply
+helm-apply: ## 		Deploy chart
+	@cd .helm && \
+	helm upgrade --install $(RELEASE_NAME) . --namespace $(RELEASE_NS)

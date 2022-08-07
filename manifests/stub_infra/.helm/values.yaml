@@ -2,13 +2,19 @@
 image: "yuriiashutkin/web-app:1.4.0-scratch"
 servicePort: 4000
 podPort: 8080
+podListenAddress: "0.0.0.0"
 
 securityContext:
-  runAsGroup: 2000
-  runAsUser: 2000
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop: ["ALL"]
+  runAsGroup: 0
+  runAsUser: 0
+  readOnlyRootFilesystem: false
+
+#securityContext:
+#  runAsGroup: 2000
+#  runAsUser: 2000
+#  readOnlyRootFilesystem: true
+#  capabilities:
+#    drop: ["ALL"]
 
 resources:
   limits:
@@ -21,13 +27,22 @@ resources:
 instances:
   first:
     managed: true
+    istioInjection: enabled
     apps:
       webapp:
         hosts:
-          - app.svc
+          - app.first.svc.cluster.local
           - webapp.first.svc.cluster.local
-      app: {}
+          - webapp.second.svc.cluster.local
+      app:
+        hosts:
+          - webapp.first.svc.cluster.local
+          - webapp.second.svc.cluster.local
   second:
     managed: true
+    istioInjection: enabled
     apps:
-      webapp: {}
+      webapp:
+        hosts:
+          - webapp.first.svc.cluster.local
+          - app.first.svc.cluster.local

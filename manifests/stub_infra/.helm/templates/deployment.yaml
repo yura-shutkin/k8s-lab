@@ -36,11 +36,13 @@ spec:
                 {{- $listHosts = printf "%s;" $listHosts }}
               {{- end }}
               {{/* TODO: How to specify external link ? */}}
-              {{- $listHosts = printf "%shttp://%s:%s" $listHosts $addr ($.Values.servicePort | toString) }}
+              {{- $listHosts = printf "%shttp://%s:%s/ping" $listHosts $addr ($.Values.servicePort | toString) }}
             {{- end }}
           env:
             - name: HOSTS
               value: {{ $listHosts }}
+            - name: LISTEN_ADDR
+              value: "{{ $.Values.podListenAddress }}:{{ $.Values.podPort }}"
           {{- end }}
 
 {{- end }}

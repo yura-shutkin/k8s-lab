@@ -27,9 +27,9 @@ k3d-delete: ##		Delete k3d cluster
 
 .PHONY: k3d-recreate
 k3d-recreate: ##		Recreate k3d cluster
-	@$(MAKE) cluster-stop
-	@$(MAKE) cluster-delete
-	@$(MAKE) cluster-create
+	@$(MAKE) k3d-stop
+	@$(MAKE) k3d-delete
+	@$(MAKE) k3d-create
 
 .PHONY: k3d-stop
 k3d-stop: ##		Stop k3d cluster
@@ -92,8 +92,9 @@ colima-delete: ##		Delete colima VM
 NODES_COUNT=2
 CPUS=2
 KUBERNETES_VERSION=v1.23.8
+CNI_DRIVER=auto
 minikube-create: ##		Create cluster in minikube
-	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=docker --network-plugin=cni --kubernetes-version=$(KUBERNETES_VERSION)
+	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=docker --cni=$(CNI_DRIVER) --kubernetes-version=$(KUBERNETES_VERSION)
 
 .PHONY: minikube-delete
 minikube-delete: ##		Delete cluster in minikube
@@ -143,3 +144,14 @@ calico-install: ##		Install version of calico. You can use CALICO_VERSION=v3.23 
 .PHONY: calico-uninstall
 calico-uninstall: ##	Uninstall version of calico
 	@kubectl delete -f calico-$(CALICO_VERSION).yaml
+
+################################################################################
+### Calico
+################################################################################
+.PHONY: istio-install
+istio-install: ##		Install istio
+	@istioctl install --set profile=demo -y
+
+.PHONY: istio-uninstall
+istio-uninstall: ##		Install istio
+	@istioctl uninstall -y
