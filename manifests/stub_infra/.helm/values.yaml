@@ -1,5 +1,5 @@
 ---
-image: "yuriiashutkin/web-app:1.4.0-ubuntu"
+image: "yuriiashutkin/web-app:1.4.0-scratch"
 servicePort: 4000
 podPort: 8080
 
@@ -19,7 +19,15 @@ resources:
     memory: 64Mi
 
 instances:
-  default:
-    myapp:
-      hosts:
-        - myapp.default.svc
+  first:
+    managed: true
+    apps:
+      webapp:
+        hosts:
+          - app.svc
+          - webapp.first.svc.cluster.local
+      app: {}
+  second:
+    managed: true
+    apps:
+      webapp: {}

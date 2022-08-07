@@ -1,27 +1,27 @@
-{{- range $ns, $instances := .Values.instances }}
-{{- range $instance, $params := $instances }}
+{{- range $ns, $nsParams := .Values.instances }}
+{{- range $app, $params := $nsParams.apps }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $instance }}
+  name: {{ $app }}
   namespace: {{ $ns }}
   labels:
-    app: {{ $instance }}
+    app: {{ $app }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ $instance }}
+      app: {{ $app }}
   template:
     metadata:
       labels:
-        app: {{ $instance }}
+        app: {{ $app }}
       annotations:
         revision: {{ $.Release.Revision | quote }}
     spec:
       containers:
-        - name: {{ $instance }}
+        - name: {{ $app }}
           image: {{ $.Values.image }}
           ports:
             - containerPort: {{ $.Values.podPort }}
@@ -35,6 +35,7 @@ spec:
               {{- if ne (len $listHosts) 0 }}
                 {{- $listHosts = printf "%s;" $listHosts }}
               {{- end }}
+              {{/* TODO: How to specify external link ? */}}
               {{- $listHosts = printf "%shttp://%s:%s" $listHosts $addr ($.Values.servicePort | toString) }}
             {{- end }}
           env:

@@ -1,0 +1,13 @@
+{{- range $ns, $nsParams := .Values.instances }}
+{{- if eq $nsParams.managed true }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $ns }}
+spec:
+  finalizers:
+    - kubernetes
+
+{{- end }}
+{{- end }}

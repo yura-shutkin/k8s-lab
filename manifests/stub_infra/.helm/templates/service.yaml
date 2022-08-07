@@ -1,14 +1,14 @@
-{{- range $ns, $instances := .Values.instances }}
-{{- range $instance, $params := $instances }}
+{{- range $ns, $nsParams := .Values.instances }}
+{{- range $app, $params := $nsParams.apps }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $instance }}
+  name: {{ $app }}
   namespace: {{ $ns }}
 spec:
   selector:
-    app: {{ $instance }}
+    app: {{ $app }}
   type: ClusterIP
   ports:
     - protocol: TCP

@@ -99,6 +99,12 @@ minikube-create: ##		Create cluster in minikube
 minikube-delete: ##		Delete cluster in minikube
 	@minikube -p $(CLUSTER_NAME) delete
 
+.PHONY: minikube-recreate
+minikube-recreate: ##		Recreate cluster in minikube
+	-@$(MAKE) minikube-stop
+	-@$(MAKE) minikube-delete
+	@$(MAKE) minikube-create
+
 .PHONY: minikube-stop
 minikube-stop: ## 		Stop cluster in minikube
 	@minikube -p $(CLUSTER_NAME) stop
