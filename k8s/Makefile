@@ -93,8 +93,9 @@ NODES_COUNT=2
 CPUS=2
 KUBERNETES_VERSION=v1.23.8
 CNI_DRIVER=auto
+DRIVER=docker
 minikube-create: ##		Create cluster in minikube
-	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=docker --cni=$(CNI_DRIVER) --kubernetes-version=$(KUBERNETES_VERSION)
+	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=$(DRIVER) --cni=$(CNI_DRIVER) --kubernetes-version=$(KUBERNETES_VERSION)
 
 .PHONY: minikube-delete
 minikube-delete: ##		Delete cluster in minikube
