@@ -34,3 +34,8 @@ werf-apply: ## 		Deploy chart
 helm-apply: ## 		Deploy chart
 	@cd .helm && \
 	helm upgrade --install $(RELEASE_NAME) . --namespace $(RELEASE_NS)
+
+.PHONY: helm-render
+helm-render: ## 		Render chart
+	@cd .helm && \
+	helm template $(RELEASE_NAME) . --namespace $(RELEASE_NS)

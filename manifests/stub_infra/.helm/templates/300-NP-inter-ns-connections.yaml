@@ -1,0 +1,87 @@
+{{- range $ns, $params := .Values.instances }}
+{{- $outbound := ((($params).network).outbound) }}
+{{- $inbound := ((($params).network).inbound) }}
+{{- if or $inbound $outbound }}
+---
+apiVersion: crd.projectcalico.org/v1
+kind: NetworkPolicy
+metadata:
+  name: "c0300.interns-connections"
+  namespace: {{ $ns }}
+spec:
+  order: 300
+  selector: all()
+  types:
+    {{- if $inbound }}
+    - Ingress
+    {{- end }}
+    {{- if $outbound }}
+    - Egress
+    {{- end }}
+
+  {{- if $inbound }}
+  ingress:
+    {{- range $rule := $inbound }}
+    {{- range $src := $rule.from }}
+    - action: Allow
+      protocol: TCP
+      destination:
+        {{- if (($rule).service) }}
+        services:
+          name: {{ $rule.service }}
+          namespace: {{ $ns }}
+        {{- end }}
+        {{- if (($rule).labels) }}
+        namespaceSelector: projectcalico.org/name == "{{ $ns }}"
+        selector: {{ $rule.labels }}
+        {{- end }}
+      source:
+        {{- if (($src).service) }}
+        services:
+          name: {{ $src.service }}
+          namespace: {{ $src.namespace }}
+        {{- end }}
+        {{- if (($src).labels) }}
+        namespaceSelector: projectcalico.org/name == "{{ $src.namespace }}"
+        selector: {{ $src.labels }}
+        {{- end }}
+
+    {{- end }}
+    {{- end }}
+
+  {{- end }}
+
+  {{- if $outbound }}
+  egress:
+    {{- range $rule := $outbound }}
+    {{- range $dst := $rule.to }}
+    - action: Allow
+      protocol: TCP
+      source:
+        {{- if (($rule).service) }}
+        services:
+          name: {{ $rule.service }}
+          namespace: {{ $ns }}
+        {{- end }}
+        {{- if (($rule).labels) }}
+        namespaceSelector: projectcalico.org/name == "{{ $ns }}"
+        selector: {{ $rule.labels }}
+        {{- end }}
+      destination:
+        {{- if (($dst).service) }}
+        services:
+          name: {{ $dst.service }}
+          namespace: {{ $dst.namespace }}
+        {{- end }}
+        {{- if (($dst).labels) }}
+        namespaceSelector: projectcalico.org/name == "{{ $dst.namespace }}"
+        selector: {{ $dst.labels }}
+        {{- end }}
+
+    {{- end }}
+    {{- end }}
+
+  {{- end }}
+
+{{- end }}
+{{- end }}

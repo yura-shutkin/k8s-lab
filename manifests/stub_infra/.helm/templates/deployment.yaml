@@ -39,10 +39,12 @@ spec:
               {{- $listHosts = printf "%shttp://%s:%s/ping" $listHosts $addr ($.Values.servicePort | toString) }}
             {{- end }}
           env:
-            - name: HOSTS
+            - name: HTTP_HOSTS
               value: {{ $listHosts }}
             - name: LISTEN_ADDR
               value: "{{ $.Values.podListenAddress }}:{{ $.Values.podPort }}"
+            - name: HTTP_CHECK_PERIOD
+              value: {{ (($params).http_check_period) | default 1 | quote }}
           {{- end }}
 
 {{- end }}

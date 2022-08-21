@@ -1,48 +1,64 @@
 ---
-image: "yuriiashutkin/web-app:1.4.0-scratch"
+image: "yuriiashutkin/web-app:1.7.0-scratch"
 servicePort: 4000
 podPort: 8080
 podListenAddress: "0.0.0.0"
 
-securityContext:
-  runAsGroup: 0
-  runAsUser: 0
-  readOnlyRootFilesystem: false
-
 #securityContext:
-#  runAsGroup: 2000
-#  runAsUser: 2000
-#  readOnlyRootFilesystem: true
-#  capabilities:
-#    drop: ["ALL"]
+#  runAsGroup: 0
+#  runAsUser: 0
+#  readOnlyRootFilesystem: false
+
+securityContext:
+  runAsGroup: 2000
+  runAsUser: 2000
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
 
 resources:
   limits:
-    cpu: 50m
-    memory: 64Mi
+    cpu: 10m
+    memory: 32Mi
   requests:
-    cpu: 50m
-    memory: 64Mi
+    cpu: 10m
+    memory: 32Mi
 
 instances:
-  first:
+  ns-1:
     managed: true
-    istioInjection: enabled
+    istioInjection: disabled
+    apps:
+      myapp:
+        hosts:
+          - webapp.ns-2.svc.cluster.local
+    network:
+      inbound:
+        - service: myapp
+          from:
+            - service: webapp
+              namespace: ns-2
+      outbound:
+        - service: myapp
+          to:
+            - service: webapp
+              namespace: ns-2
+
+  ns-2:
+    managed: true
+    istioInjection: disabled
     apps:
       webapp:
         hosts:
-          - app.first.svc.cluster.local
-          - webapp.first.svc.cluster.local
-          - webapp.second.svc.cluster.local
-      app:
-        hosts:
-          - webapp.first.svc.cluster.local
-          - webapp.second.svc.cluster.local
-  second:
-    managed: true
-    istioInjection: enabled
-    apps:
-      webapp:
-        hosts:
-          - webapp.first.svc.cluster.local
-          - app.first.svc.cluster.local
+          - myapp.ns-1.svc.cluster.local
+    network:
+      inbound:
+        - service: webapp
+          from:
+            - service: myapp
+              namespace: ns-1
+      outbound:
+        - service: webapp
+          to:
+            - service: myapp
+              namespace: ns-1
