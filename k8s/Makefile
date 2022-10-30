@@ -94,8 +94,9 @@ CPUS=2
 KUBERNETES_VERSION=v1.23.8
 CNI_DRIVER=auto
 DRIVER=docker
+CIDR=172.16.0.0/16
 minikube-create: ##		Create cluster in minikube
-	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=$(DRIVER) --cni=$(CNI_DRIVER) --kubernetes-version=$(KUBERNETES_VERSION)
+	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=$(DRIVER) --cni=$(CNI_DRIVER) --extra-config=kubeadm.pod-network-cidr=$(CIDR) --kubernetes-version=$(KUBERNETES_VERSION)
 
 .PHONY: minikube-delete
 minikube-delete: ##		Delete cluster in minikube
