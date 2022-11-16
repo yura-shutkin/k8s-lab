@@ -4,15 +4,15 @@ WEBHOOK_LISTEN_PORT=13001
 CLUSTER_NAME=calico
 
 ################################################################################
-### Env automation
+### Env automation #############################################################
 ################################################################################
 
 .PHONY: help
 help: ## 			Show this help
-	@sed -e '/__hidethis__/d; /##/!d; s/:.##/\t/g' $(MAKEFILE_LIST)
+	@sed -e '/__hidethis__/d; /##/!d; s/:.##/\t/g; s/^####.*//; s/#/-/g; s/^\([a-zA-Z0-9]\)/* \1/g' $(MAKEFILE_LIST)
 
 ################################################################################
-### k3d
+### k3d ########################################################################
 ################################################################################
 
 .PHONY: k3d-create
@@ -45,7 +45,7 @@ k3d-restart: ##		Restart k3d cluster
 	@$(MAKE) cluster-start
 
 .PHONY: k3d-show-config
-k3d-show-config: ##		Show k3d cluster creds
+k3d-show-config: ##	Show k3d cluster creds
 	@k3d kubeconfig get $(CLUSTER_NAME)
 
 .PHONY: k3d-clusters
@@ -53,7 +53,7 @@ k3d-clusters: ##		List k3d clusters
 	@k3d cluster list
 
 ################################################################################
-### Webhook
+### Webhook ####################################################################
 ################################################################################
 
 .PHONY: webhook-start
@@ -65,7 +65,7 @@ webhook-stop: ##		Stop webhook
 	@cat webhook.pid | xargs kill
 
 ################################################################################
-### Colima (Docker)
+### Colima (Docker) ############################################################
 ################################################################################
 
 .PHONY: colima-create
@@ -85,25 +85,25 @@ colima-delete: ##		Delete colima VM
 	@colima delete --profile $(PROFILE) --force
 
 ################################################################################
-### Minikube
+### Minikube ###################################################################
 ################################################################################
 
 .PHONY: minikube-create
 NODES_COUNT=2
 CPUS=2
 KUBERNETES_VERSION=v1.23.8
-CNI_DRIVER=auto
+CNI=auto
 DRIVER=docker
 CIDR=172.16.0.0/16
-minikube-create: ##		Create cluster in minikube
-	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=$(DRIVER) --cni=$(CNI_DRIVER) --extra-config=kubeadm.pod-network-cidr=$(CIDR) --kubernetes-version=$(KUBERNETES_VERSION)
+minikube-create: ##	Create cluster in minikube
+	@minikube -p $(CLUSTER_NAME) start --cpus=$(CPUS) --nodes=$(NODES_COUNT) --memory=$(MEMORY) --driver=$(DRIVER) --cni=$(CNI) --extra-config=kubeadm.pod-network-cidr=$(CIDR) --kubernetes-version=$(KUBERNETES_VERSION)
 
 .PHONY: minikube-delete
-minikube-delete: ##		Delete cluster in minikube
+minikube-delete: ##	Delete cluster in minikube
 	@minikube -p $(CLUSTER_NAME) delete
 
 .PHONY: minikube-recreate
-minikube-recreate: ##		Recreate cluster in minikube
+minikube-recreate: ##	Recreate cluster in minikube
 	-@$(MAKE) minikube-stop
 	-@$(MAKE) minikube-delete
 	@$(MAKE) minikube-create
@@ -113,11 +113,11 @@ minikube-stop: ## 		Stop cluster in minikube
 	@minikube -p $(CLUSTER_NAME) stop
 
 .PHONY: minikube-start
-minikube-start: ##		Start cluster in minikube
+minikube-start: ##	Start cluster in minikube
 	@minikube -p $(CLUSTER_NAME) start
 
 .PHONY: minikube-pause
-minikube-pause: ##		Pause cluster in minikube
+minikube-pause: ##	Pause cluster in minikube
 	@minikube -p $(CLUSTER_NAME) pause
 
 .PHONY: minikube-unpause
@@ -129,17 +129,34 @@ minikube-profiles: ##	Show minikube profiles
 	@minikube profile list
 
 ################################################################################
-### Calico
+### Kind #######################################################################
+################################################################################
+
+.PHONY: kind-render-config
+kind-render-config: ##	Render config for kind
+	@export CLUSTER_NAME=$(CLUSTER_NAME) && \
+	envsubst < kind-config.yaml.tpl > kind-config.yaml
+
+.PHONY: kind-create
+kind-create: ##	        Create KIND cluster
+	@kind create cluster --config kind-config.yaml --name $(CLUSTER_NAME)
+
+.PHONY: kind-delete
+kind-delete: ##	        Create KIND cluster
+	@kind create cluster --config kind-config.yaml --name $(CLUSTER_NAME)
+
+################################################################################
+### Calico #####################################################################
 ################################################################################
 
 # __hidethis__ https://projectcalico.docs.tigera.io/archive/v3.22/manifests/calico.yaml
 .PHONY: calico-download
 CALICO_VERSION=v3.23
-calico-download: ##		Download version of calico CALICO_VERSION=v1.22 (yes only major and feature versions)
+calico-download: ##	Download version of calico CALICO_VERSION=v1.22 (yes only major and feature versions)
 	@curl https://projectcalico.docs.tigera.io/archive/$(CALICO_VERSION)/manifests/calico.yaml -o calico-$(CALICO_VERSION).yaml
 
 .PHONY: calico-install
-calico-install: ##		Install version of calico. You can use CALICO_VERSION=v3.23 to specify version
+calico-install: ##	Install version of calico. You can use CALICO_VERSION=v3.23 to specify version
 	@if [ ! -f "calico-$(CALICO_VERSION).yaml" ]; then $(MAKE) calico-download; fi
 	@kubectl apply -f calico-$(CALICO_VERSION).yaml
 
@@ -148,12 +165,12 @@ calico-uninstall: ##	Uninstall version of calico
 	@kubectl delete -f calico-$(CALICO_VERSION).yaml
 
 ################################################################################
-### Calico
+### Istio ######################################################################
 ################################################################################
 .PHONY: istio-install
 istio-install: ##		Install istio
 	@istioctl install --set profile=demo -y
 
 .PHONY: istio-uninstall
-istio-uninstall: ##		Install istio
+istio-uninstall: ##	Install istio
 	@istioctl uninstall -y
