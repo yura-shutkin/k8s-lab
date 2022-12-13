@@ -1,2 +1,2 @@
-calico-*.yaml
-kind-config.yaml
+*.yaml
+!hooks.yaml
