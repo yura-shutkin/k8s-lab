@@ -193,8 +193,8 @@ co-helm-repo-add: ##		Add helm repo of calico-operator
 co-show-versions: ##		Show versions of projectcalico helm repo
 	@helm search repo projectcalico -l
 
-.PHONY: co-render-vaules
-co-render-vaules: ##		Render values.yaml file
+.PHONY: co-render-values
+co-render-values: ##		Render values.yaml file
 	@helm show values projectcalico/tigera-operator --version $(CO_CHART_VERSION) > co_values.yaml
 
 # __hidethis__ https://projectcalico.docs.tigera.io/reference/installation/api
@@ -202,7 +202,7 @@ co-render-vaules: ##		Render values.yaml file
 co-install: ##			Install calico operator
 	@if [ ! -f co_values.yaml ]; then $(MAKE) co-render-co-values; fi
 	-@kubectl create ns $(CO_NS)
-	@helm install -n $(CO_NS) calico projectcalico/tigera-operator --version $(CO_CHART_VERSION) -f co_values.yaml
+	@helm upgrade --install -n $(CO_NS) calico projectcalico/tigera-operator --version $(CO_CHART_VERSION) -f co_values.yaml
 
 .PHONY: co-uninstall
 co-uninstall: ##			Uninstall calico operator
@@ -218,3 +218,33 @@ istio-install: ##			Install istio
 .PHONY: istio-uninstall
 istio-uninstall: ##		Install istio
 	@istioctl uninstall -y
+
+
+################################################################################
+### Metrics server #############################################################
+################################################################################
+MS_CHART_VERSION=3.8.3
+MS_NS=metrics-server
+####
+.PHONY: ms-helm-repo-add
+ms-helm-repo-add: ##		Add metrics-server repo
+	@helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+	@helm repo update metrics-server
+
+.PHONY: ms-show-versions
+ms-show-versions: ##		Show versions of projectcalico helm repo
+	@helm search repo metrics-server -l
+
+.PHONY: ms-render-values
+ms-render-values: ##		Render values.yaml file
+	@helm show values metrics-server/metrics-server --version $(MS_CHART_VERSION) > ms_values.yaml
+
+.PHONY: ms-install
+ms-install: ##			Install metrics server
+	@if [ ! -f ms_values.yaml ]; then $(MAKE) ms-render-values; fi
+	-@kubectl create ns $(MS_NS)
+	@helm upgrade --install -n $(MS_NS) metrics-server metrics-server/metrics-server --version $(MS_CHART_VERSION) -f ms_values.yaml
+
+.PHONY: ms-uninstall
+ms-uninstall: ##			Uninstall metrics server
+	@helm uninstall -n $(MS_NS) metrics-server
