@@ -248,3 +248,53 @@ ms-install: ##			Install metrics server
 .PHONY: ms-uninstall
 ms-uninstall: ##			Uninstall metrics server
 	@helm uninstall -n $(MS_NS) metrics-server
+
+################################################################################
+### Kubernetes Dashboard #######################################################
+################################################################################
+KD_CHART_VERSION=6.0.8
+KD_NS=kube-dash
+####
+.PHONY: k8s-create-sa
+k8s-create-sa: ## __hidethis__
+	@kubectl -n ${KD_NS} apply -f admin-sa.yaml
+
+.PHONY: k8s-get-sa-secret
+k8s-get-sa-secret: ## __hidethis__
+	@kubectl -n ${KD_NS} get sa administrator -o json | jq -r '.secrets[].name'
+
+.PHONY: kd-helm-repo-add
+kd-helm-repo-add: ##		Add metrics-server repo
+	@helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+	@helm repo update kubernetes-dashboard
+
+.PHONY: kd-show-versions
+kd-show-versions: ##		Show versions of projectcalico helm repo
+	@helm search repo kubernetes-dashboard -l
+
+.PHONY: kd-render-values
+kd-render-values: ##		Render values.yaml file
+	@helm show values kubernetes-dashboard/kubernetes-dashboard  --version $(KD_CHART_VERSION) > kube-dash_values.yaml
+
+.PHONY: kd-install
+kd-install: ##			Install metrics server
+	@if [ ! -f kube-dash_values.yaml ]; then $(MAKE) kd-render-values; fi
+	-@kubectl create ns $(KD_NS)
+	@helm upgrade --install -n $(KD_NS) kube-dash kubernetes-dashboard/kubernetes-dashboard  --version $(KD_CHART_VERSION) -f kube-dash_values.yaml
+
+.PHONY: kd-uninstall
+kd-uninstall: ##			Uninstall metrics server
+	@helm uninstall -n $(KD_NS) kube-dash
+
+.PHONY: kd-get-pod-name
+kd-get-pod-name: ##			Get kubernetes dashboard pod name
+	@kubectl get pods -n kube-dash -l "app.kubernetes.io/name=kubernetes-dashboard,app.kubernetes.io/instance=kube-dash" -o jsonpath="{.items[0].metadata.name}"
+
+.PHONY: kd-port-forward
+kd-port-forward: ##		Forward port of Kubernetes Dashboard
+	echo https://127.0.0.1:8443/
+	kubectl -n kube-dash port-forward $(shell make kd-get-pod-name) 8443:8443
+
+.PHONY: kd-get-admin-token
+kd-get-admin-token: ##		Get token of admin SA
+	@kubectl -n ${KD_NS} get secret $(shell make k8s-get-sa-secret) -o json | jq -r '.data.token' | base64 --decode
