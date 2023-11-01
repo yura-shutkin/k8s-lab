@@ -30,8 +30,13 @@ minio-render-values: ##		Render values.yaml file
 minio-install: ##			Install minio
 	@if [ ! -f values.yaml ]; then $(MAKE) minio-render-values; fi
 	-@kubectl create ns $(MINIO_NS)
-	@helm upgrade --install -n $(MINIO_NS) minio minio/operator  --version $(MINIO_CHART_VERSION) -f values.yaml
+	@helm upgrade --install -n $(MINIO_NS) minio minio/operator --version $(MINIO_CHART_VERSION) -f values.yaml --create-namespace
 
 .PHONY: minio-uninstall
 minio-uninstall: ##		Uninstall minio
 	@helm uninstall -n $(MINIO_NS) minio
+
+.PHONY: minio-port-forward
+minio-port-forward: ##		Forward operator's port
+	@kubectl --namespace minio port-forward svc/console 9090:9090
+	@echo "Visit the Operator Console at http://127.0.0.1:9090"
