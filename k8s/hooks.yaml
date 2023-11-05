@@ -5,6 +5,8 @@
   http-methods:
     - GET
   pass-arguments-to-command:
+    - source: string
+      name: --no-print-directory
     - source: url
       name: name
   trigger-rule:
@@ -24,6 +26,8 @@
   http-methods:
     - POST
   pass-arguments-to-command:
+    - source: string
+      name: --no-print-directory
     - source: url
       name: name
     - source: payload
