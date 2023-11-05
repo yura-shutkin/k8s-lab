@@ -69,7 +69,7 @@ webhook-start: ##			Start webhook
 
 .PHONY: webhook-stop
 webhook-stop: ##			Stop webhook
-	@cat webhook.pid | xargs kill
+	-@cat webhook.pid | xargs kill
 
 .PHONY: webhook-cleanup-logs
 webhook-cleanup-logs: ##		Truncate webhook log file to 0
