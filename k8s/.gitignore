@@ -1,2 +1,3 @@
 *.yaml
-!hooks.yaml
+*.log
+*.pid

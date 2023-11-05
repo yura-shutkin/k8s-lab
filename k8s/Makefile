@@ -56,16 +56,25 @@ k3d-clusters: ##			List k3d clusters
 ### Webhook ####################################################################
 ################################################################################
 
+WEBHOOK_LISTEN_IP=127.0.0.1
 WEBHOOK_LISTEN_PORT=13001
+WEBHOOK_SECRET=54321
+WEBHOOK_URL_PREFIX="hooks"
+WEBHOOK_LOG_FILE=webhook.log
 ####
 
 .PHONY: webhook-start
 webhook-start: ##			Start webhook
-	@webhook -hooks hooks.yaml -ip $(LISTEN_IP) -port $(WEBHOOK_LISTEN_PORT) -pidfile webhook.pid -urlprefix '' -hotreload hooks.yaml &
+	@webhook -hooks hooks.yaml -template -ip $(WEBHOOK_LISTEN_IP) -port $(WEBHOOK_LISTEN_PORT) -pidfile webhook.pid -urlprefix $(WEBHOOK_URL_PREFIX) -hotreload -logfile $(WEBHOOK_LOG_FILE) &
 
 .PHONY: webhook-stop
 webhook-stop: ##			Stop webhook
 	@cat webhook.pid | xargs kill
+
+.PHONY: webhook-restart
+webhook-restart: ##		Restart webhook
+	@$(MAKE) webhook-stop
+	@$(MAKE) webhook-start
 
 ################################################################################
 ### Colima (Docker) ############################################################
@@ -145,15 +154,28 @@ KIND_CLUSTER_NAME=local
 .PHONY: kind-render-config
 kind-render-config: ##		Render config for kind
 	@export CLUSTER_NAME=$(KIND_CLUSTER_NAME) && \
-	envsubst < kind-config.yaml.tpl > kind-config.yaml
+	envsubst < kind-config.yaml.tpl > $(KIND_CLUSTER_NAME)-kind-config.yaml
+
+.PHONY: kind-list-clusters
+kind-list-clusters: ##		List existed clusters
+	@kind get clusters
 
 .PHONY: kind-create
-kind-create: ##	        	Create KIND cluster
-	@kind create cluster --config kind-config.yaml --name $(KIND_CLUSTER_NAME)
+kind-create: ##			Create KIND cluster
+	@kind create cluster --config $(KIND_CLUSTER_NAME)-kind-config.yaml --name $(KIND_CLUSTER_NAME)
 
 .PHONY: kind-delete
-kind-delete: ##	        	Create KIND cluster
-	@kind create cluster --config kind-config.yaml --name $(KIND_CLUSTER_NAME)
+kind-delete: ##			Delete KIND cluster
+	@kind delete cluster --name $(KIND_CLUSTER_NAME)
+
+.PHONY: kind-recreate
+kind-recreate: ##			Recreate KIND cluster
+	@$(MAKE) kind-delete
+	@$(MAKE) kind-create
+
+.PHONY: kind-show-config
+kind-show-config: ##		Show current kind cluster config
+	@kind get kubeconfig --name=$(KIND_CLUSTER_NAME)
 
 ################################################################################
 ### Calico #####################################################################
@@ -287,7 +309,7 @@ kd-uninstall: ##			Uninstall metrics server
 	@helm uninstall -n $(KD_NS) kube-dash
 
 .PHONY: kd-get-pod-name
-kd-get-pod-name: ##			Get kubernetes dashboard pod name
+kd-get-pod-name: ##		Get kubernetes dashboard pod name
 	@kubectl get pods -n kube-dash -l "app.kubernetes.io/name=kubernetes-dashboard,app.kubernetes.io/instance=kube-dash" -o jsonpath="{.items[0].metadata.name}"
 
 .PHONY: kd-port-forward
