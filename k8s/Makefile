@@ -65,11 +65,15 @@ WEBHOOK_LOG_FILE=webhook.log
 
 .PHONY: webhook-start
 webhook-start: ##			Start webhook
-	@webhook -hooks hooks.yaml -template -ip $(WEBHOOK_LISTEN_IP) -port $(WEBHOOK_LISTEN_PORT) -pidfile webhook.pid -urlprefix $(WEBHOOK_URL_PREFIX) -hotreload -logfile $(WEBHOOK_LOG_FILE) &
+	@WEBHOOK_SECRET=$(WEBHOOK_SECRET) webhook -hooks hooks.yaml -template -ip $(WEBHOOK_LISTEN_IP) -port $(WEBHOOK_LISTEN_PORT) -pidfile webhook.pid -urlprefix $(WEBHOOK_URL_PREFIX) -hotreload -logfile $(WEBHOOK_LOG_FILE) &
 
 .PHONY: webhook-stop
 webhook-stop: ##			Stop webhook
 	@cat webhook.pid | xargs kill
+
+.PHONY: webhook-cleanup-logs
+webhook-cleanup-logs: ##		Truncate webhook log file to 0
+	@truncate -s 0 $(WEBHOOK_LOG_FILE)
 
 .PHONY: webhook-restart
 webhook-restart: ##		Restart webhook

@@ -2,6 +2,8 @@
 # Exec goal without arguments
 - id: target
   execute-command: make
+  http-methods:
+    - GET
   pass-arguments-to-command:
     - source: url
       name: name
@@ -19,11 +21,37 @@
 # Exec goal with args
 - id: target-args
   execute-command: make
+  http-methods:
+    - POST
   pass-arguments-to-command:
     - source: url
       name: name
     - source: payload
       name: args
+  trigger-rule:
+    match:
+      type: value
+      value: "{{ getenv "WEBHOOK_SECRET" | js }}"
+      parameter:
+        source: header
+        name: X-Webhook-Secret
+  incoming-payload-content-type: application/json
+  include-command-output-in-response: true
+  include-command-output-in-response-on-error: true
+
+# Update kind config
+- id: kind-update-cluster-conf
+  execute-command: scripts/update_kind_config.sh
+  command-working-directory: "{{ getenv "PWD" }}"
+  http-methods:
+    - POST
+  pass-environment-to-command:
+    - source: payload
+      name: cluster_name
+      envname: CLUSTER_NAME
+    - source: payload
+      name: data
+      envname: CLUSTER_CONFIG
   trigger-rule:
     match:
       type: value
