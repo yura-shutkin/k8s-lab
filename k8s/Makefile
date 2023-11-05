@@ -59,13 +59,14 @@ k3d-clusters: ##			List k3d clusters
 WEBHOOK_LISTEN_IP=127.0.0.1
 WEBHOOK_LISTEN_PORT=13001
 WEBHOOK_SECRET=54321
-WEBHOOK_URL_PREFIX="hooks"
+WEBHOOK_URL_PREFIX=hooks
 WEBHOOK_LOG_FILE=webhook.log
+WEBHOOK_CUSTOM_ARGS=""
 ####
 
 .PHONY: webhook-start
 webhook-start: ##			Start webhook
-	@WEBHOOK_SECRET=$(WEBHOOK_SECRET) webhook -hooks hooks.yaml -template -ip $(WEBHOOK_LISTEN_IP) -port $(WEBHOOK_LISTEN_PORT) -pidfile webhook.pid -urlprefix $(WEBHOOK_URL_PREFIX) -hotreload -logfile $(WEBHOOK_LOG_FILE) &
+	@WEBHOOK_SECRET=$(WEBHOOK_SECRET) webhook -hooks hooks.yaml -template -ip $(WEBHOOK_LISTEN_IP) -port $(WEBHOOK_LISTEN_PORT) -pidfile webhook.pid -urlprefix $(WEBHOOK_URL_PREFIX) -hotreload -logfile $(WEBHOOK_LOG_FILE) $(WEBHOOK_CUSTOM_ARGS) &
 
 .PHONY: webhook-stop
 webhook-stop: ##			Stop webhook
