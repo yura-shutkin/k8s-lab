@@ -1,10 +1,36 @@
 ---
-- id: cluster-config
+# Exec goal without arguments
+- id: target
   execute-command: make
   pass-arguments-to-command:
-    - source: string
-      name: --no-print-directory
-    - source: string
-      name: cluster-show-config
+    - source: url
+      name: name
+  trigger-rule:
+    match:
+      type: value
+      value: "{{ getenv "WEBHOOK_SECRET" | js }}"
+      parameter:
+        source: header
+        name: X-Webhook-Secret
+  incoming-payload-content-type: application/json
+  include-command-output-in-response: true
+  include-command-output-in-response-on-error: true
+
+# Exec goal with args
+- id: target-args
+  execute-command: make
+  pass-arguments-to-command:
+    - source: url
+      name: name
+    - source: payload
+      name: args
+  trigger-rule:
+    match:
+      type: value
+      value: "{{ getenv "WEBHOOK_SECRET" | js }}"
+      parameter:
+        source: header
+        name: X-Webhook-Secret
+  incoming-payload-content-type: application/json
   include-command-output-in-response: true
   include-command-output-in-response-on-error: true
