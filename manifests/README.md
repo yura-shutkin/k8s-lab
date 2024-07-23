@@ -1,3 +1,8 @@
-# Calico + Istio
+# Directory to manage deployments
 
-This should be some amount of examples to get understanding on how calico with istio-mesh are working
+`helm.mk` contains common targets(goals) and imported in each directory
+
+    ! Attention!
+    Previous iteration used port forwarding, but this way is painfull to maintain.
+    
+    The current way to access services is via Ingress and `minikube tunnel` command

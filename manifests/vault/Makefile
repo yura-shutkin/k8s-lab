@@ -72,3 +72,23 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
+
+################################################################################
+### CLI ########################################################################
+################################################################################
+
+.PHONY: copy-unseal-key
+copy-unseal-key: ##		Copy unseal key with pbcopy
+	@cat creds.json | jq -r '.keys[0]' | pbcopy
+
+.PHONY: copy-root-token
+copy-root-token: ##		Copy root token with pbcopy
+	@cat creds.json | jq -r '.root_token' | pbcopy
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: fix-storage
+fix-storage: ##			Fix storage in minikube
+	@kubectl -n ${NS} apply -f minikube-pv-hack
