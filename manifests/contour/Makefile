@@ -5,14 +5,14 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Prometheus #################################################################
+### Contour ####################################################################
 ################################################################################
-REPO_NAME=prometheus-community
-REPO_URL=https://prometheus-community.github.io/helm-charts
-CHART_NAME=kube-prometheus-stack
-CHART_VERSION=56.6.2
-RELEASE_NAME=prometheus
-NS=prometheus
+REPO_NAME=bitnami
+REPO_URL=https://charts.bitnami.com/bitnami
+CHART_NAME=contour
+CHART_VERSION=16.0.2
+RELEASE_NAME=contour
+NS=contour
 VALUES_FILE=values.yaml
 ####
 
