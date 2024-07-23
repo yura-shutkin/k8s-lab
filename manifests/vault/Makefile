@@ -5,18 +5,18 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Prometheus #################################################################
+### Vault ######################################################################
 ################################################################################
-REPO_NAME=prometheus-community
-REPO_URL=https://prometheus-community.github.io/helm-charts
-CHART_NAME=kube-prometheus-stack
-CHART_VERSION=56.6.2
-RELEASE_NAME=prometheus
-NS=prometheus
+REPO_NAME=hashicorp
+REPO_URL=https://helm.releases.hashicorp.com
+CHART_NAME=vault
+CHART_VERSION=0.25.0
+RELEASE_NAME=vault
+NS=vault
 VALUES_FILE=values.yaml
 ####
 
-.PHONY: repo-add
+.PHONY: helm-repo-add
 repo-add: ##			Add helm repo
 	@$(MAKE) helm-repo-add REPO_NAME=$(REPO_NAME) REPO_URL=$(REPO_URL)
 	@$(MAKE) repo-update

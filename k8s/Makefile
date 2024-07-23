@@ -1,10 +1,34 @@
 ################################################################################
 ### Local sandbox automation ###################################################
 ################################################################################
+MAKEFLAGS = --no-print-directory # __hidethis__
+####
 
 .PHONY: help
 help: ## 				Show this help
 	@sed -e '/__hidethis__/d; /^\.PHONY.*/d; /[A-Z0-9#]?*/!d; /^\t/d; s/:.##/\t/g; s/^####.*//; s/#/-/g; s/^\([A-Z0-9_]*=.*\)/| \1/g; s/^\([a-zA-Z0-9]\)/* \1/g; s/^| \(.*\)/\1/' $(MAKEFILE_LIST)
+
+.PHONY: helm-repo-add
+helm-repo-add: ## __hidethis__
+	@helm repo add $(HELM_REPO_NAME) $(HELM_REPO_URL)
+	@helm repo update $(HELM_REPO_NAME)
+
+.PHONY: helm-render-values
+helm-render-values: ## __hidethis__
+	@helm show values $(CHART_NAME) --version $(CHART_VERSION) > $(VALUES_FILE_NAME)
+
+.PHONY: helm-install
+helm-install: ## __hidethis__
+	@helm upgrade --install -n $(NS) $(RELEASE_NAME) $(CHART_NAME) --version $(CHART_VERSION) -f $(VALUES_FILE_NAME) --create-namespace
+
+.PHONY: list-clusters
+list-clusters: ##			List existed clusters
+	@echo "Show K3D clusters:"
+	@$(MAKE) k3d-clusters
+	@echo "Show minikube clusters/profiles:"
+	@$(MAKE) minikube-profiles
+	@echo "Show kind clusters:"
+	@$(MAKE) kind-list-clusters
 
 ################################################################################
 ### k3d ########################################################################
@@ -148,6 +172,10 @@ minikube-unpause: ##		Unpause cluster in minikube
 .PHONY: minikube-profiles
 minikube-profiles: ##		Show minikube profiles
 	@minikube profile list
+
+.PHONY: minikube-tunnel
+minikube-tunnel: ##		Start service to access LB in k8s https://minikube.sigs.k8s.io/docs/handbook/accessing/
+	@minikube -p $(MINI_CLUSTER_NAME) tunel
 
 ################################################################################
 ### Kind #######################################################################
@@ -306,8 +334,7 @@ kd-render-values: ##		Render values.yaml file
 .PHONY: kd-install
 kd-install: ##			Install metrics server
 	@if [ ! -f kube-dash_values.yaml ]; then $(MAKE) kd-render-values; fi
-	-@kubectl create ns $(KD_NS)
-	@helm upgrade --install -n $(KD_NS) kube-dash kubernetes-dashboard/kubernetes-dashboard  --version $(KD_CHART_VERSION) -f kube-dash_values.yaml
+	@helm upgrade --install -n $(KD_NS) kube-dash kubernetes-dashboard/kubernetes-dashboard  --version $(KD_CHART_VERSION) -f kube-dash_values.yaml --history-max=2 --create-namespace
 
 .PHONY: kd-uninstall
 kd-uninstall: ##			Uninstall metrics server
@@ -325,3 +352,27 @@ kd-port-forward: ##		Forward port of Kubernetes Dashboard
 .PHONY: kd-get-admin-token
 kd-get-admin-token: ##		Get token of admin SA
 	@kubectl -n ${KD_NS} get secret $(shell make k8s-get-sa-secret) -o json | jq -r '.data.token' | base64 --decode
+
+################################################################################
+### Projectcontour (Ingress controller) ########################################
+################################################################################
+CNTR_HELM_REPO_NAME=bitnami
+CNTR_HELM_REPO_URL=https://charts.bitnami.com/bitnami
+CNTR_CHART_VERSION=14.0.2
+CNTR_NS=contour
+CNTR_VALUES_FILE=cntr-values.yaml
+CNTR_RELEASE_NAME=contour
+####
+
+.PHONY: cntr-helm-repo-add
+cntr-helm-repo-add: ##		Add helm repo for Contourproject
+	@$(MAKE) helm-repo-add HELM_REPO_NAME=$(CNTR_HELM_REPO_NAME) HELM_REPO_URL=$(CNTR_HELM_REPO_URL)
+
+.PHONY: cntr-render-values
+cntr-render-values: ##		Render chart values of Contourproject
+	@$(MAKE) helm-render-values CHART_NAME="$(CNTR_HELM_REPO_NAME)/contour" CHART_VERSION=$(CNTR_CHART_VERSION) VALUES_FILE_NAME=$(CNTR_VALUES_FILE)
+
+.PHONY: cntr-install
+cntr-install: ##			Install Contourproject
+	@if [ ! -f $(CNTR_VALUES_FILE) ]; then $(MAKE) cntr-render-values; fi
+	@$(MAKE) helm-install NS=$(CNTR_NS) RELEASE_NAME=$(CNTR_RELEASE_NAME) CHART_NAME="$(CNTR_HELM_REPO_NAME)/contour" CHART_VERSION=$(CNTR_CHART_VERSION) VALUES_FILE_NAME=$(CNTR_VALUES_FILE)
