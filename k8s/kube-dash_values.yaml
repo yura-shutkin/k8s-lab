@@ -25,7 +25,7 @@ image:
   pullSecrets: []
 
 ## Number of replicas
-replicaCount: 1
+replicaCount: 2
 
 ## @param commonLabels Labels to add to all deployed objects
 ##
@@ -45,6 +45,9 @@ labels: {}
 #   - --enable-skip-login
 #   - --enable-insecure-login
 #   - --system-banner="Welcome to Kubernetes"
+
+extraArgs:
+  - --enable-insecure-login
 
 ## Additional container environment variables
 ##
@@ -111,10 +114,14 @@ podAnnotations: {}
 ## Node labels for pod assignment
 ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
 ##
-nodeSelector: {}
+nodeSelector:
+  infra: "true"
 
 ## List of node taints to tolerate (requires Kubernetes >= 1.6)
-tolerations: []
+tolerations:
+  - key: infra
+    value: "true"
+    operator: Equal
 #  - key: "key"
 #    operator: "Equal|Exists"
 #    value: "value"
@@ -133,18 +140,17 @@ resources:
     cpu: 100m
     memory: 200Mi
   limits:
-    cpu: 2
-    memory: 200Mi
+    memory: 512Mi
 
 ## Serve application over HTTP without TLS
 ##
 ## Note: If set to true, you may want to add --enable-insecure-login to extraArgs
-protocolHttp: false
+protocolHttp: true
 
 service:
   type: ClusterIP
   # Dashboard service port
-  externalPort: 443
+  externalPort: 9090
 
   ## LoadBalancerSourcesRange is a list of allowed CIDR values, which are combined with ServicePort to
   ## set allowed inbound rules on the security group assigned to the master load balancer
@@ -170,7 +176,7 @@ service:
 ingress:
   ## If true, Kubernetes Dashboard Ingress will be created.
   ##
-  enabled: false
+  enabled: true
 
   ## Kubernetes Dashboard Ingress labels
   # labels:
@@ -196,6 +202,9 @@ ingress:
   paths:
     - /
   #  - /*
+
+  hosts:
+    - kubedash.snbx.k8s.infra-lab.xyz
 
   ## Custom Kubernetes Dashboard Ingress paths. Will override default paths.
   ##

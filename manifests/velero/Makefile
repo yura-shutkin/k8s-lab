@@ -5,14 +5,14 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Prometheus #################################################################
+### Velero #####################################################################
 ################################################################################
-REPO_NAME=prometheus-community
-REPO_URL=https://prometheus-community.github.io/helm-charts
-CHART_NAME=kube-prometheus-stack
-CHART_VERSION=56.6.2
-RELEASE_NAME=prometheus
-NS=prometheus
+REPO_NAME=vmware-tanzu
+REPO_URL=https://vmware-tanzu.github.io/helm-charts
+CHART_NAME=velero
+CHART_VERSION=5.1.2
+RELEASE_NAME=velero
+NS=velero
 VALUES_FILE=values.yaml
 ####
 
@@ -72,3 +72,11 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: fix-storage
+fix-storage: ##			Fix storage in minikube
+	@kubectl -n ${NS} apply -f minikube-pv-hack

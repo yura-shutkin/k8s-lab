@@ -39,7 +39,10 @@ operator:
                 values:
                   - minio-operator
           topologyKey: kubernetes.io/hostname
-  tolerations: []
+  tolerations:
+    - key: infra
+      operator: Equal
+      value: "true"
   topologySpreadConstraints: []
   resources:
     requests:
@@ -58,7 +61,10 @@ console:
   replicaCount: 1
   nodeSelector: {}
   affinity: {}
-  tolerations: []
+  tolerations:
+    - key: infra
+      operator: Equal
+      value: "true"
   topologySpreadConstraints: []
   resources: {}
   securityContext:
@@ -68,12 +74,12 @@ console:
     runAsUser: 1000
     runAsNonRoot: true
   ingress:
-    enabled: false
+    enabled: true
     ingressClassName: ""
     labels: {}
     annotations: {}
     tls: []
-    host: console.local
+    host: minio-operator.snbx.k8s.infra-lab.xyz
     path: /
     pathType: Prefix
   volumes: []

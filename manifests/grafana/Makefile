@@ -5,21 +5,20 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Prometheus #################################################################
+### Grafana ####################################################################
 ################################################################################
-REPO_NAME=prometheus-community
-REPO_URL=https://prometheus-community.github.io/helm-charts
-CHART_NAME=kube-prometheus-stack
-CHART_VERSION=56.6.2
-RELEASE_NAME=prometheus
-NS=prometheus
+REPO_NAME=grafana
+REPO_URL=https://grafana.github.io/helm-charts
+CHART_NAME=grafana
+CHART_VERSION=6.57.4
+RELEASE_NAME=grafana
+NS=grafana
 VALUES_FILE=values.yaml
 ####
 
 .PHONY: repo-add
 repo-add: ##			Add helm repo
 	@$(MAKE) helm-repo-add REPO_NAME=$(REPO_NAME) REPO_URL=$(REPO_URL)
-	@$(MAKE) repo-update
 
 .PHONY: repo-update
 repo-update: ##			Update helm repo
@@ -72,3 +71,11 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: fix-storage
+fix-storage: ##			Fix storage in minikube
+	@kubectl -n ${NS} apply -f minikube-pv-hack

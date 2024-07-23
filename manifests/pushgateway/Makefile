@@ -5,14 +5,14 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Prometheus #################################################################
+### Pushgateway ################################################################
 ################################################################################
 REPO_NAME=prometheus-community
 REPO_URL=https://prometheus-community.github.io/helm-charts
-CHART_NAME=kube-prometheus-stack
-CHART_VERSION=56.6.2
-RELEASE_NAME=prometheus
-NS=prometheus
+CHART_NAME=prometheus-pushgateway
+CHART_VERSION=2.6.0
+RELEASE_NAME=pgw
+NS=pgw
 VALUES_FILE=values.yaml
 ####
 
