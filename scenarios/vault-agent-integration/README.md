@@ -10,31 +10,40 @@
 - kubectl
 - helm
 - 2 terminal windows:
-    - T1: terminal for minikube
-    - T2: (default if T1 not specified) terminal for this scenario
+    - `T1`: terminal for minikube
+    - `T2`: (default if `T1` is not specified) terminal for this scenario
 - terraform
 - 2 records in /etc/hosts (or one if you wish to combine them)
   ```
   127.0.0.1 vault.loc
   127.0.0.1 webapp.loc
   ```
+- [Optional] pbcopy
 
 ## Scenario
 
-1. T1: Launch cluster itself (if necessary)
-   ```
+1. `T1`: Launch cluster itself (if necessary)
+   ```shell
    make minikube-create MINI_NODES_COUNT=2
    make minikube-tunnel
    ```
    ```
    it could be required to enter your sudo password in order to use 80 and 443 ports
    ```
-2. Deploy Contour
    ```
+   You can specify version of k8s by setting MINI_K8S_VERSION argument
+   
+   For example:
+   make minikube-create MINI_NODES_COUNT=2 MINI_K8S_VERSION=v1.30.0
+   ```
+2. Deploy Contour
+   ```shell
+   make contour-helm-chart-update
    make contour-install
    ```
 3. Deploy Vault
-   ```
+   ```shell
+   make vault-helm-chart-update
    make vault-install
    make vault-minikube-fix-storage
    ```
@@ -42,19 +51,19 @@
    Check terminal with tunnel. You may be required to enter sudo password
    ```
 4. Initialize Vault
-   ```
+   ```shell
    make vault-init
    ```
 5. Unseal vault
-   ```
+   ```shell
    make vault-unseal
    ```
 6. Configure vault
-   ```
+   ```shell
    make vault-set
    ```
 7. Deploy web application
-   ```
+   ```shell
    make webapp-install
    ```
    ```
@@ -64,12 +73,12 @@
 
    You can login with root token.
 
-   For macos
-   ```
+   For macos (if you have `pbcopy` installed)
+   ```shell
    make copy-root-token
    ```
    For other OSes
-   ```
+   ```shell
    make show-root-token
    ```
 9. Access WebApp via http://webapp.loc
