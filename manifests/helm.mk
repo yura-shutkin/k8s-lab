@@ -22,7 +22,6 @@ helm-repo-update: ##			Update helm repo # __hidethis__
 .PHONY: helm-repo-add
 helm-repo-add: ##			Add helm repo # __hidethis__
 	@helm repo add $(REPO_NAME) $(REPO_URL)
-	@$(MAKE) helm-repo-update
 
 .PHONY: helm-show-versions
 helm-show-versions: ##			Show versions of chart in helm repo # __hidethis__

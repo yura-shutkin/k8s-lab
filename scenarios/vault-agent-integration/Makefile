@@ -7,6 +7,12 @@ SCENARIO_NAME=$(shell pwd | xargs basename)# __hidethis__
 ### Contour ####################################################################
 ################################################################################
 
+.PHONY: contour-helm-chart-update
+contour-helm-chart-update: ##	Add and refresh contour's helm chart repo
+	-@cd ../../manifests/contour && \
+		make repo-add && \
+		make repo-update
+
 .PHONY: contour-install
 contour-install: ##		Install contour
 	@cd ../../manifests/contour && \
@@ -19,6 +25,12 @@ VAULT_URL=http://vault.loc
 SHARES=1
 THRESHOLD=1
 ####
+
+.PHONY: vault-helm-chart-update
+vault-helm-chart-update: ##	Add and refresh vault's helm chart repo
+	-@cd ../../manifests/vault && \
+		make repo-add &&\
+		make repo-update
 
 .PHONY: vault-install
 vault-install: ##			Install vault
