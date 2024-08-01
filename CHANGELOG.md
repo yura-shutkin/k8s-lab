@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2024-08-01
+### Changed
+
+- Further improvement of vault-agent-integration's README
+- Removed auto update of helm repo after addition in helm.mk and in manifests directories, because of too many refreshes
+
+## [2.0.1] - 2024-08-01
+
+### Changed
+- Updated main README
+- Updated vault-agent-integration scenario README
+
 ## [2.0.0] - 2024-08-01
 
 ### Changed

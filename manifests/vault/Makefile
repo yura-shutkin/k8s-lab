@@ -19,7 +19,6 @@ VALUES_FILE=values.yaml
 .PHONY: helm-repo-add
 repo-add: ##			Add helm repo
 	@$(MAKE) helm-repo-add REPO_NAME=$(REPO_NAME) REPO_URL=$(REPO_URL)
-	@$(MAKE) repo-update
 
 .PHONY: repo-update
 repo-update: ##			Update helm repo
