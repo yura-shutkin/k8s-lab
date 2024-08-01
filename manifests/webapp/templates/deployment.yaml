@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+      annotations:
+        revision: {{ $.Release.Revision | quote }}
+        {{- .Values.extraAnnotations | toYaml | nindent 8 }}
+    spec:
+      containers:
+        - name: webapp
+          image: {{ $.Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ $.Values.podPort }}
+          securityContext:
+            {{- $.Values.securityContext | toYaml | nindent 12 }}
+          resources:
+            {{- $.Values.resources | toYaml | nindent 12 }}
+          env:
+            - name: LISTEN_ADDR
+              value: "{{ $.Values.podListenAddress }}:{{ $.Values.podPort }}"
+            - name: SECRETS_DIRS
+              value: "/vault/secrets"
+      serviceAccountName: {{ .Values.serviceAccountName }}

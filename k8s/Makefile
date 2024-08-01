@@ -171,11 +171,11 @@ minikube-unpause: ##		Unpause cluster in minikube
 
 .PHONY: minikube-profiles
 minikube-profiles: ##		Show minikube profiles
-	@minikube profile list
+	@minikube profile list || true
 
 .PHONY: minikube-tunnel
 minikube-tunnel: ##		Start service to access LB in k8s https://minikube.sigs.k8s.io/docs/handbook/accessing/
-	@minikube -p $(MINI_CLUSTER_NAME) tunel
+	@minikube -p $(MINI_CLUSTER_NAME) tunnel
 
 ################################################################################
 ### Kind #######################################################################
@@ -352,27 +352,3 @@ kd-port-forward: ##		Forward port of Kubernetes Dashboard
 .PHONY: kd-get-admin-token
 kd-get-admin-token: ##		Get token of admin SA
 	@kubectl -n ${KD_NS} get secret $(shell make k8s-get-sa-secret) -o json | jq -r '.data.token' | base64 --decode
-
-################################################################################
-### Projectcontour (Ingress controller) ########################################
-################################################################################
-CNTR_HELM_REPO_NAME=bitnami
-CNTR_HELM_REPO_URL=https://charts.bitnami.com/bitnami
-CNTR_CHART_VERSION=14.0.2
-CNTR_NS=contour
-CNTR_VALUES_FILE=cntr-values.yaml
-CNTR_RELEASE_NAME=contour
-####
-
-.PHONY: cntr-helm-repo-add
-cntr-helm-repo-add: ##		Add helm repo for Contourproject
-	@$(MAKE) helm-repo-add HELM_REPO_NAME=$(CNTR_HELM_REPO_NAME) HELM_REPO_URL=$(CNTR_HELM_REPO_URL)
-
-.PHONY: cntr-render-values
-cntr-render-values: ##		Render chart values of Contourproject
-	@$(MAKE) helm-render-values CHART_NAME="$(CNTR_HELM_REPO_NAME)/contour" CHART_VERSION=$(CNTR_CHART_VERSION) VALUES_FILE_NAME=$(CNTR_VALUES_FILE)
-
-.PHONY: cntr-install
-cntr-install: ##			Install Contourproject
-	@if [ ! -f $(CNTR_VALUES_FILE) ]; then $(MAKE) cntr-render-values; fi
-	@$(MAKE) helm-install NS=$(CNTR_NS) RELEASE_NAME=$(CNTR_RELEASE_NAME) CHART_NAME="$(CNTR_HELM_REPO_NAME)/contour" CHART_VERSION=$(CNTR_CHART_VERSION) VALUES_FILE_NAME=$(CNTR_VALUES_FILE)

@@ -1,0 +1,4 @@
+.terraform
+*.tfstate*
+# Because we don't need to pin to specific version in demo
+.terraform.lock.hcl
