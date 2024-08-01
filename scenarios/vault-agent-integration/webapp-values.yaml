@@ -1,0 +1,43 @@
+---
+image: "yuriiashutkin/web-app:1.7.1-scratch"
+servicePort: 4000
+podPort: 8080
+podListenAddress: "0.0.0.0"
+serviceAccountName: webapp
+
+securityContext:
+  runAsGroup: 2000
+  runAsUser: 2000
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+resources:
+  limits:
+    cpu: 10m
+    memory: 32Mi
+  requests:
+    cpu: 10m
+    memory: 32Mi
+
+ingress:
+  enabled: true
+  domainName: webapp.loc
+
+extraAnnotations:
+  vault.hashicorp.com/agent-inject: "true"
+  vault.hashicorp.com/role: "webapp"
+  vault.hashicorp.com/agent-inject-secret-project-secret: "project-kv/secret"
+  # https://github.com/hashicorp/consul-template/blob/v0.28.1/docs/templating-language.md#tojson
+  vault.hashicorp.com/agent-inject-template-project-secret: |
+    {{- with secret "project-kv/secret" -}}
+    {{ .Data | toJSON }}
+    {{- end -}}
+  vault.hashicorp.com/agent-inject-template-secret-value-only: |
+    {{- with secret "project-kv/secret" -}}
+    {{ .Data.data.value }}
+    {{- end -}}
+  vault.hashicorp.com/agent-inject-template-secret-value-only-v1-version: |
+    {{- with secret "project-kv/secret?version=1" -}}
+    {{ .Data.data.value }}
+    {{- end -}}
