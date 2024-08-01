@@ -32,5 +32,32 @@ spec:
             - name: LISTEN_ADDR
               value: "{{ $.Values.podListenAddress }}:{{ $.Values.podPort }}"
             - name: SECRETS_DIRS
-              value: "/vault/secrets"
+              value: {{ .Values.secretsDirs }}
+            {{- if .Values.csi.enabled }}
+            - name: FROM_VAULT_K8S_SECRET_FROM_CSI
+              valueFrom:
+                secretKeyRef:
+                  name: project-kv-secret
+                  key: project-kv-secret
+            - name: FROM_VAULT_K8S_SECRET_FROM_CSI_V1
+              valueFrom:
+                secretKeyRef:
+                  name: project-kv-secret
+                  key: project-kv-secret-v1
+            {{- end }}
+          {{- if .Values.csi.enabled }}
+          volumeMounts:
+            - name: project-kv-secret
+              mountPath: "/mnt/project-kv-secret"
+              readOnly: true
+          {{- end  }}
       serviceAccountName: {{ .Values.serviceAccountName }}
+      {{- if .Values.csi.enabled }}
+      volumes:
+        - name: project-kv-secret
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "project-kv-secret"
+      {{- end }}

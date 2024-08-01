@@ -5,7 +5,7 @@ podPort: 8080
 podListenAddress: "0.0.0.0"
 serviceAccountName: webapp
 
-secretsDirs: "/vault/secrets"
+secretsDirs: "/vault/secrets,/mnt/project-kv-secret"
 
 securityContext:
   runAsGroup: 2000
@@ -45,4 +45,4 @@ extraAnnotations:
     {{- end -}}
 
 csi:
-  enabled: false
+  enabled: true

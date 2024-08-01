@@ -997,11 +997,11 @@ csi:
   # With the driver and provider installed, you can mount Vault secrets into volumes
   # similar to the Vault Agent injector, and you can also sync those secrets into
   # Kubernetes secrets.
-  enabled: false
+  enabled: true
 
   image:
     repository: "hashicorp/vault-csi-provider"
-    tag: "1.4.0"
+    tag: "1.4.3"
     pullPolicy: IfNotPresent
 
   # volumes is a list of volumes made available to all containers. These are rendered
@@ -1020,14 +1020,13 @@ csi:
   #   mountPath: "/vault/tls"
   #   readOnly: true
 
-  resources: {}
-  # resources:
-  #   requests:
-  #     cpu: 50m
-  #     memory: 128Mi
-  #   limits:
-  #     cpu: 50m
-  #     memory: 128Mi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 50m
+      memory: 128Mi
 
   # Override the default secret name for the CSI Provider's HMAC key used for
   # generating secret versions.
