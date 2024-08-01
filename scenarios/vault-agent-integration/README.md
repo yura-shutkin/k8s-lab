@@ -83,3 +83,21 @@
    ```
 9. Access WebApp via http://webapp.loc
 10. As soon as you got access to webapp you can update secret in vault `project-kv/secret`. After about 4 to 5 minutes you can see the new value in webapp web ui. The new value will be used in webapp. If you wish to lower the interval of update, you can set `token_ttl` in terraform to `30`. In this case the update will happened in about 5s 
+
+## Secrets store CSI driver
+
+* Tutorial: https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-secret-store-driver
+
+1. Install csi driver
+   ```shell
+   make csi-install
+   ```
+2. Deploy SecretProviderClass for webapp
+   ```shell
+   make spc-deploy
+   ```
+3. Redeploy WebApp application
+   ```shell
+   make webapp-csi-install
+   ```
+4. Check the application http://webapp.loc 

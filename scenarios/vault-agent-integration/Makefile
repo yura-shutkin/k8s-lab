@@ -87,3 +87,21 @@ terraform-apply: ##		Apply terraform
 webapp-install: ##		Install WebApp
 	@cd ../../manifests/webapp && \
 		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/webapp-values.yaml"
+
+################################################################################
+### Secrets Store CSI Driver ###################################################
+################################################################################
+
+.PHONY: csi-install
+csi-install: ##			Install Secrets Store CSI Driver
+	@cd ../../manifests/secrets-store-csi-driver && \
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/csi-values.yaml"
+
+.PHONY: spc-deploy
+spc-deploy: ##			Deploy manifest of project-kv SecretProviderClass
+	@kubectl -n webapp apply -f manifests/project-kv_SecretProviderClass.yaml
+
+.PHONY: webapp-csi-install
+webapp-csi-install: ##		Install WebApp with CSI driver
+	@cd ../../manifests/webapp && \
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/webapp-csi-values.yaml"
