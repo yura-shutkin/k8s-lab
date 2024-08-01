@@ -11,7 +11,7 @@
 - helm
 - 2 terminal windows:
     - T1: terminal for minikube
-    - T2: terminal for this scenario
+    - T2: (default if T1 not specified) terminal for this scenario
 - terraform
 - 2 records in /etc/hosts (or one if you wish to combine them)
   ```
@@ -29,11 +29,11 @@
    ```
    it could be required to enter your sudo password in order to use 80 and 443 ports
    ```
-2. T2: Deploy Contour
+2. Deploy Contour
    ```
    make contour-install
    ```
-3. T2: Deploy Vault
+3. Deploy Vault
    ```
    make vault-install
    make vault-minikube-fix-storage
@@ -41,7 +41,7 @@
    ```
    Check terminal with tunnel. You may be required to enter sudo password
    ```
-4. T3: Initialize Vault
+4. Initialize Vault
    ```
    make vault-init
    ```
