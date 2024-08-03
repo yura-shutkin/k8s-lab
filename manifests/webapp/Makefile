@@ -8,12 +8,14 @@ help: ## 				Show this help
 RELEASE_NAME=webapp
 NS=webapp
 VALUES_FILE=values.yaml
+EXTRA_ARGS=
+HISTORY_MAX=2
 ####
 
 # __hidethis__ helm upgrade [RELEASE] [CHART] [flags]
 .PHONY: install
 install: ## 			Deploy chart
-	@helm upgrade --install ${RELEASE_NAME} . -n ${NS} -f ${VALUES_FILE} --create-namespace
+	@helm upgrade --install ${RELEASE_NAME} . -n ${NS} -f ${VALUES_FILE} --create-namespace --history-max ${HISTORY_MAX}
 
 .PHONY: uninstall
 uninstall: ## 			Delete chart
@@ -21,4 +23,4 @@ uninstall: ## 			Delete chart
 
 .PHONY: render
 render: ## 			Render chart
-	@helm template ${RELEASE_NAME} . -n ${NS} -f ${VALUES_FILE}
+	@helm template ${RELEASE_NAME} . -n ${NS} -f ${VALUES_FILE} ${EXTRA_ARGS}

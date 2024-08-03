@@ -26,7 +26,19 @@ ingress:
   enabled: false
   domainName: webapp.domain.local
 
-extraAnnotations: {}
+annotations: {}
 
 csi:
   enabled: false
+  vaultAddr: http://vault.vault.svc:8200
+  roleName: webapp
+  secretName: project-kv
+  secretProviderClassName: project-kv-secret
+  secrets:
+    - name: csi-provider-secret
+      vaultPath: project-kv/data/secret
+      key: value
+    - name: csi-provider-secret-v1
+      secretFieldName: csi-secret-v1
+      vaultPath: project-kv/data/secret?version=1
+      key: value

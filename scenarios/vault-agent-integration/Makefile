@@ -16,7 +16,7 @@ contour-helm-chart-update: ##	Add and refresh contour's helm chart repo
 .PHONY: contour-install
 contour-install: ##		Install contour
 	@cd ../../manifests/contour && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/contour-values.yaml"
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/contour-values.yaml"
 
 ################################################################################
 ### Vault ######################################################################
@@ -35,7 +35,7 @@ vault-helm-chart-update: ##	Add and refresh vault's helm chart repo
 .PHONY: vault-install
 vault-install: ##			Install vault
 	@cd ../../manifests/vault && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/vault-values.yaml"
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/vault-values.yaml"
 
 .PHONY: vault-minikube-fix-storage
 vault-minikube-fix-storage: ##	Fix permissions in minikube storage
@@ -86,7 +86,7 @@ terraform-apply: ##		Apply terraform
 .PHONY: webapp-install
 webapp-install: ##		Install WebApp
 	@cd ../../manifests/webapp && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/webapp-values.yaml"
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/webapp-values.yaml"
 
 ################################################################################
 ### Secrets Store CSI Driver ###################################################
@@ -95,13 +95,9 @@ webapp-install: ##		Install WebApp
 .PHONY: csi-install
 csi-install: ##			Install Secrets Store CSI Driver
 	@cd ../../manifests/secrets-store-csi-driver && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/csi-values.yaml"
-
-.PHONY: spc-deploy
-spc-deploy: ##			Deploy manifest of project-kv SecretProviderClass
-	@kubectl -n webapp apply -f manifests/project-kv_SecretProviderClass.yaml
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/csi-values.yaml"
 
 .PHONY: webapp-csi-install
 webapp-csi-install: ##		Install WebApp with CSI driver
 	@cd ../../manifests/webapp && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/webapp-csi-values.yaml"
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/webapp-csi-values.yaml"
