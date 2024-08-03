@@ -15,9 +15,10 @@ spec:
       labels:
         app: webapp
       annotations:
-        revision: {{ $.Release.Revision | quote }}
-        {{- .Values.extraAnnotations | toYaml | nindent 8 }}
+        revision: {{ .Release.Revision | quote }}
+        {{- .Values.annotations | toYaml | nindent 8 }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
       containers:
         - name: webapp
           image: {{ $.Values.image }}
@@ -33,31 +34,23 @@ spec:
               value: "{{ $.Values.podListenAddress }}:{{ $.Values.podPort }}"
             - name: SECRETS_DIRS
               value: {{ .Values.secretsDirs }}
-            {{- if .Values.csi.enabled }}
-            - name: FROM_VAULT_K8S_SECRET_FROM_CSI
-              valueFrom:
-                secretKeyRef:
-                  name: project-kv-secret
-                  key: project-kv-secret
-            - name: FROM_VAULT_K8S_SECRET_FROM_CSI_V1
-              valueFrom:
-                secretKeyRef:
-                  name: project-kv-secret
-                  key: project-kv-secret-v1
-            {{- end }}
-          {{- if .Values.csi.enabled }}
-          volumeMounts:
-            - name: project-kv-secret
-              mountPath: "/mnt/project-kv-secret"
-              readOnly: true
-          {{- end  }}
-      serviceAccountName: {{ .Values.serviceAccountName }}
       {{- if .Values.csi.enabled }}
+            {{- range $secret := .Values.csi.secrets }}
+            - name: "FROM_VAULT_{{ $secret.secretFieldName | default $secret.name }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.csi.secretName }}
+                  key: {{ $secret.secretFieldName | default $secret.name }}
+            {{- end }}
+          volumeMounts:
+            - name: {{ .Values.csi.secretName | quote }}
+              mountPath: "/mnt/{{ .Values.csi.secretName }}"
+              readOnly: true
       volumes:
-        - name: project-kv-secret
+        - name: {{ .Values.csi.secretName | quote }}
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: "project-kv-secret"
+              secretProviderClass: {{ .Values.csi.secretProviderClassName | quote }}
       {{- end }}

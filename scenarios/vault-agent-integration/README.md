@@ -82,22 +82,26 @@
    make show-root-token
    ```
 9. Access WebApp via http://webapp.loc
-10. As soon as you got access to webapp you can update secret in vault `project-kv/secret`. After about 4 to 5 minutes you can see the new value in webapp web ui. The new value will be used in webapp. If you wish to lower the interval of update, you can set `token_ttl` in terraform to `30`. In this case the update will happened in about 5s 
+10. As soon as you got access to webapp you can update secret in vault `project-kv/secret`. After about 4 to 5 minutes you can see the new value in webapp web ui. The new value will be used in webapp. If you wish to lower the interval of update, you can set `vault.hashicorp.com/template-static-secret-render-interval: "10s"` annotation (in demo already added). In this case the update will happened in about 5s 
 
 ## Secrets store CSI driver
 
 * Tutorial: https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-secret-store-driver
 
+
+    Please keep in mind that:
+    * Secret created with CSI driver are available in plain text to each and everyone who has access to secrets in k8s
+    * The secrets will not update after secret in vault was updated, even after pod recreation. The only way I found how to update secret is to delete secret itself and rollout restart deployment
+    * The file rendered by CSI driver will be updated as soon as pod will be (re)created
+
 1. Install csi driver
    ```shell
    make csi-install
    ```
-2. Deploy SecretProviderClass for webapp
-   ```shell
-   make spc-deploy
-   ```
-3. Redeploy WebApp application
+2. Redeploy WebApp application
    ```shell
    make webapp-csi-install
    ```
-4. Check the application http://webapp.loc 
+3. Check the application http://webapp.loc
+4. Update secret in http://vault.loc/ui/vault/secrets/project-kv/show/secret
+5. Refresh the application http://webapp.loc after about 10s. You should see new version in `SECRET-VALUE-ONLY` and `PROJECT-SECRET`  
