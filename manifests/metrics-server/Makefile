@@ -5,14 +5,14 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Grafana ####################################################################
+### Prometheus #################################################################
 ################################################################################
-REPO_NAME=grafana
-REPO_URL=https://grafana.github.io/helm-charts
-CHART_NAME=grafana
-CHART_VERSION=6.57.4
-RELEASE_NAME=grafana
-NS=grafana
+REPO_NAME=metrics-server
+REPO_URL=https://kubernetes-sigs.github.io/metrics-server/
+CHART_NAME=metrics-server
+CHART_VERSION=3.12.1
+RELEASE_NAME=metrics-server
+NS=metrics-server
 VALUES_FILE=values.yaml
 ####
 
@@ -71,11 +71,3 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
-
-################################################################################
-### Minikube ###################################################################
-################################################################################
-
-.PHONY: fix-storage
-fix-storage: ##			Fix storage in minikube
-	@kubectl -n ${NS} apply -f minikube-pv-hack

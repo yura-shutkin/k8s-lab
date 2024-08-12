@@ -10,8 +10,10 @@
     ```
 
 - [ ] Grafana to view metrics
-- [ ] Find how to access services and pods. LoadBalancer and DNS resolver
-- [ ] Brainstorm how to specify scenarios of what we need in local env
-- [ ] Move release name in Makefile to variable
-- [ ] Move helm chart repo name in Makefile to variable 
-- [ ] Move helm chart repo url in Makefile to variable 
+- [x] Find how to access services and pods. LoadBalancer and DNS resolver
+
+      It is possible to use `minikube tunnel` command and contour to access ingresses inside k8s 
+- [x] Brainstorm how to specify scenarios of what we need in local env
+- [x] Move release name in Makefile to variable
+- [x] Move helm chart repo name in Makefile to variable 
+- [x] Move helm chart repo url in Makefile to variable

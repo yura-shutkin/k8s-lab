@@ -50,10 +50,4 @@ Replacement for default k8s ingress with a lot of features
 
 * ```
   make minikube-create CLUSTER_NAME=cilium NODES=3 CNI=cilium
-  ``` 
-
-## Metrics server
-
-* https://github.com/kubernetes-sigs/metrics-server
-
-Service to see CPU and Memory consumption by every container in pod
+  ```
