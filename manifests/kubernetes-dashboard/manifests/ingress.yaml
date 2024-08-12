@@ -1,21 +1,17 @@
-{{- if .Values.ingress.enabled }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: webapp
+  name: kubedash
 spec:
-  ingressClassName: contour
   rules:
-    - host: {{ $.Values.ingress.domainName }}
+    - host: kubedash.loc
       http:
         paths:
           - backend:
               service:
-                name: webapp
+                name: kube-dash-kubernetes-dashboard-web
                 port:
-                  number: {{ .Values.servicePort }}
+                  number: 8000
             path: /
             pathType: Prefix
-
-{{- end }}

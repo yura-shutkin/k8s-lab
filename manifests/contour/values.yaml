@@ -83,7 +83,7 @@ existingConfigMap: ""
 ## Refer to https://projectcontour.io/docs/latest/configuration for available options.
 ##
 configInline:
-  disablePermitInsecure: false
+  disablePermitInsecure: true
   tls:
     fallback-certificate: {}
   accesslog-format: envoy

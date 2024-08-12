@@ -5,14 +5,14 @@ help: ## 				Show this help
 include ../helm.mk
 
 ################################################################################
-### Grafana ####################################################################
+### Contour ####################################################################
 ################################################################################
-REPO_NAME=grafana
-REPO_URL=https://grafana.github.io/helm-charts
-CHART_NAME=grafana
-CHART_VERSION=6.57.4
-RELEASE_NAME=grafana
-NS=grafana
+REPO_NAME=jetstack
+REPO_URL=https://charts.jetstack.io
+CHART_NAME=cert-manager
+CHART_VERSION=v1.15.2
+RELEASE_NAME=cert-manager
+NS=cert-manager
 VALUES_FILE=values.yaml
 ####
 
@@ -71,11 +71,3 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
-
-################################################################################
-### Minikube ###################################################################
-################################################################################
-
-.PHONY: fix-storage
-fix-storage: ##			Fix storage in minikube
-	@kubectl -n ${NS} apply -f minikube-pv-hack
