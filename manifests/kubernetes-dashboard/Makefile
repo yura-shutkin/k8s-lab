@@ -3,16 +3,17 @@ help: ## 				Show this help
 	@sed -e '/__hidethis__/d; /^\.PHONY.*/d; /[A-Z0-9#]?*/!d; /^\t/d; s/:.##/\t/g; s/^####.*//; s/#/-/g; s/^\([A-Z0-9_]*=.*\)/| \1/g; s/^\([a-zA-Z0-9]\)/* \1/g; s/^| \(.*\)/\1/' $(MAKEFILE_LIST)
 
 include ../helm.mk
+include ../kubectl.mk
 
 ################################################################################
-### Grafana ####################################################################
+### Prometheus #################################################################
 ################################################################################
-REPO_NAME=grafana
-REPO_URL=https://grafana.github.io/helm-charts
-CHART_NAME=grafana
-CHART_VERSION=6.57.4
-RELEASE_NAME=grafana
-NS=grafana
+REPO_NAME=kubernetes-dashboard
+REPO_URL=https://kubernetes.github.io/dashboard/
+CHART_NAME=kubernetes-dashboard
+CHART_VERSION=7.5.0
+RELEASE_NAME=kube-dash
+NS=kube-dash
 VALUES_FILE=values.yaml
 ####
 
@@ -71,11 +72,3 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
-
-################################################################################
-### Minikube ###################################################################
-################################################################################
-
-.PHONY: fix-storage
-fix-storage: ##			Fix storage in minikube
-	@kubectl -n ${NS} apply -f minikube-pv-hack

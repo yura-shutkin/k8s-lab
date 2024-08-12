@@ -24,8 +24,8 @@ repo-add: ##			Add helm repo
 repo-update: ##			Update helm repo
 	@$(MAKE) helm-repo-update REPO_NAME=$(REPO_NAME)
 
-.PHONY: versions
-versions: ##			List helm chart versions
+.PHONY: show-versions
+show-versions: ##			List helm chart versions
 	@$(MAKE) helm-show-versions REPO_NAME=$(REPO_NAME) CHART_NAME=$(CHART_NAME)
 
 .PHONY: render-values

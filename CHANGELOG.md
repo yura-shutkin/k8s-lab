@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.2.0] - 2024-08-12
+### Changed
+- Metrics-server moved from k8s into manifests directory
+- `make show-versions` instead of `make versions`
+
+### Added
+- Cert-manager helm chart
+- Kubernetes-dashboard, but without kong
+- kubectl.mk file
+
+### Fixed
+- Webapp/ingress has an error: wrong path to domain name
+
 
 ## [2.1.0] - 2024-08-03
 ### Added
