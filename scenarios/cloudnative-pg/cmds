@@ -1,0 +1,3 @@
+pg/tools:
+  DB_HOST='pg-rw.pg.svc' DB_NAME=app DB_USER=app PGPASSWORD='794HqSNTgt6fBzfUrijfOgQEDh0nujxbmatFht0pcFlBrVjtM1yZe7FZso9P4sOf' bash /data/db_update_script.sh
+  bash /data/db_update_script.sh

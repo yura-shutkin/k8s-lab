@@ -1,5 +1,5 @@
 ---
-image: "yuriiashutkin/web-app:1.7.1-scratch"
+image: "yuriiashutkin/web-app:1.7.1-alpine"
 servicePort: 4000
 podPort: 8080
 podListenAddress: "0.0.0.0"

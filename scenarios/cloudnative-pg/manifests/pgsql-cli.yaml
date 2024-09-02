@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tools
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data
+  namespace: tools
+data:
+  db_update_script.sh: |
+    #!/usr/bin/env bash
+    if [[ -z $PGPASSWORD ]]; then
+      export PGPASSWORD=12345
+    fi
+    if [[ -z $DB_HOST ]]; then
+      DB_HOST=pg.dbnode.svc
+    fi
+    if [[ -z $DB_USER ]]; then
+      DB_USER=postgres
+    fi
+    if [[ -z $DB_NAME ]]; then
+      DB_NAME=project_db
+    fi
+    while true; do
+      psql -U ${DB_USER} -h ${DB_HOST} -d ${DB_NAME} -c "INSERT INTO meters (value) VALUES (trunc(random()*1000000000))";
+      sleep 0.2;
+    done
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: psql
+  namespace: tools
+spec:
+  selector:
+    matchLabels:
+      app: psql
+  serviceName: psql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: psql
+    spec:
+      containers:
+        - name: psql
+          image: postgres:14.13-bullseye
+          tty: true
+          command: ['cat']
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      restartPolicy: Always
+      volumes:
+        - name: data
+          configMap:
+            name: data

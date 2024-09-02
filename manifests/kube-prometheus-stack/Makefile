@@ -1,5 +1,5 @@
 ################################################################################
-### Contour ####################################################################
+### Kube Prometheus Stack ######################################################
 ################################################################################
 
 .PHONY: help
@@ -11,12 +11,12 @@ include ../helm.mk
 ################################################################################
 ### Helm #######################################################################
 ################################################################################
-REPO_NAME=bitnami
-REPO_URL=https://charts.bitnami.com/bitnami
-CHART_NAME=contour
-CHART_VERSION=16.0.2
-RELEASE_NAME=contour
-NS=contour
+REPO_NAME=prometheus-community
+REPO_URL=https://prometheus-community.github.io/helm-chart
+CHART_NAME=kube-prometheus-stack
+CHART_VERSION=55.3.1
+RELEASE_NAME=prom
+NS=prom
 VALUES_FILE=values.yaml
 ####
 
@@ -75,3 +75,11 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: fix-storage
+fix-storage: ##			Fix storage in minikube
+	@kubectl -n $(NS) apply -f minikube-pv-hack
