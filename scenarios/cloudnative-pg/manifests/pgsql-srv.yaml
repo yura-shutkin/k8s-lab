@@ -1,0 +1,111 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbnode
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: minikube-pv-hack
+  namespace: dbnode
+spec:
+  selector:
+    matchLabels:
+      name: minikube-pv-hack
+  template:
+    metadata:
+      labels:
+        name: minikube-pv-hack
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: minikube-pv-hack
+          image: registry.access.redhat.com/ubi8:latest
+          command:
+            - bash
+            - -c
+            - |
+              while : ; do
+                chmod 777 /target/*
+                sleep 1
+              done
+          volumeMounts:
+            - name: host-vol
+              mountPath: /target
+      volumes:
+        - name: host-vol
+          hostPath:
+            path: /tmp/hostpath-provisioner/dbnode
+
+---
+# TODO: How to update pg_hba?
+# echo 'host replication replica 0.0.0.0/0 md5' >> /var/lib/postgresql/data/pg_hba.conf
+# SELECT pg_reload_conf();
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-scripts
+  namespace: dbnode
+data:
+  create-table.sql: |
+    CREATE TABLE meters (
+      value varchar NOT NULL
+    );
+  create-users.sql: |
+    CREATE ROLE replica WITH REPLICATION LOGIN PASSWORD 'replica';
+  configure.sql: |
+    ALTER SYSTEM SET wal_keep_size = '512MB';
+    SELECT pg_reload_conf();
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pg
+  namespace: dbnode
+spec:
+  selector:
+    matchLabels:
+      app: pg
+  serviceName: psql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pg
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14.13-bullseye
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_PASSWORD
+              value: "12345"
+            - name: POSTGRES_DB
+              value: "project_db"
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: create-table
+      restartPolicy: Always
+      volumes:
+        - name: create-table
+          configMap:
+            name: init-scripts
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg
+  namespace: dbnode
+spec:
+  ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: pg
+  type: ClusterIP

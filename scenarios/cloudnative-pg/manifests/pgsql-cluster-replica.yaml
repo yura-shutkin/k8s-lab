@@ -1,0 +1,88 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pg-repl
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: minikube-pv-hack
+  namespace: pg-repl
+spec:
+  selector:
+    matchLabels:
+      name: minikube-pv-hack
+  template:
+    metadata:
+      labels:
+        name: minikube-pv-hack
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: minikube-pv-hack
+          image: registry.access.redhat.com/ubi8:latest
+          command:
+            - bash
+            - -c
+            - |
+              while : ; do
+                chmod 777 /target/*
+                sleep 1
+              done
+          volumeMounts:
+            - name: host-vol
+              mountPath: /target
+      volumes:
+        - name: host-vol
+          hostPath:
+            path: /tmp/hostpath-provisioner/pg-repl
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-replica-creds
+  namespace: pg-repl
+data:
+  password: cmVwbGljYQo=
+
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-repl
+  namespace: pg-repl
+spec:
+  instances: 2
+  description: "Test cluster with 3 instances without specifying image"
+  imageName: ghcr.io/cloudnative-pg/postgresql:14.13
+  imagePullPolicy: IfNotPresent
+  logLevel: trace
+  enableSuperuserAccess: true
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  storage:
+    size: 1Gi
+    storageClass: standard
+    resizeInUseVolumes: true
+  monitoring:
+    enablePodMonitor: true
+  bootstrap:
+    pg_basebackup:
+      source: pgDBNode
+  replica:
+    source: pgDBNode
+    enabled: false
+  externalClusters:
+    - name: pgDBNode
+      connectionParameters:
+        host: pg.dbnode.svc
+        user: replica
+        sslmode: disable
+      password:
+        name: db-replica-creds
+        key: password
