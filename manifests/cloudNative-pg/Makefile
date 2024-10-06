@@ -1,7 +1,3 @@
-################################################################################
-### Contour ####################################################################
-################################################################################
-
 .PHONY: help
 help: ## 				Show this help
 	@sed -e '/__hidethis__/d; /^\.PHONY.*/d; /[A-Z0-9#]?*/!d; /^\t/d; s/:.##/\t/g; s/^####.*//; s/#/-/g; s/^\([A-Z0-9_]*=.*\)/| \1/g; s/^\([a-zA-Z0-9]\)/* \1/g; s/^| \(.*\)/\1/' $(MAKEFILE_LIST)
@@ -11,12 +7,12 @@ include ../helm.mk
 ################################################################################
 ### Helm #######################################################################
 ################################################################################
-REPO_NAME=bitnami
-REPO_URL=https://charts.bitnami.com/bitnami
-CHART_NAME=contour
-CHART_VERSION=16.0.2
-RELEASE_NAME=contour
-NS=contour
+REPO_NAME=cnpg
+REPO_URL=https://cloudnative-pg.github.io/charts
+CHART_NAME=cloudnative-pg
+CHART_VERSION=0.21.6
+RELEASE_NAME=cnpg
+NS=cnpg
 VALUES_FILE=values.yaml
 ####
 
@@ -75,3 +71,11 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: fix-storage
+fix-storage: ##			Fix storage in minikube
+	@kubectl -n ${NS} apply -f minikube-pv-hack
