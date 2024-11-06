@@ -1,0 +1,159 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: compactor
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: compactor.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-compactor
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: distributor
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: distributor.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-distributor
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingester
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: ingester.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-ingester
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: overrides-exporter
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: overrides-exporter.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-overrides-exporter
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: query-frontend
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: query-frontend.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-query-frontend
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: query-scheduler
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: query-scheduler.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-query-scheduler
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ruler
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: ruler.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-ruler
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: store-gateway
+  namespace: mimir
+spec:
+  ingressClassName: contour
+  rules:
+  - host: store-gateway.mimir.loc
+    http:
+      paths:
+      - backend:
+          service:
+            name: mimir-store-gateway
+            port:
+              name: http-metrics
+        path: /
+        pathType: Prefix

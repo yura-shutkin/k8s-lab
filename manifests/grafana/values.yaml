@@ -222,7 +222,7 @@ hostAliases: []
   #     - "my.host.com"
 
 ingress:
-  enabled: true
+  enabled: false
   # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
   # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
   # ingressClassName: nginx
@@ -237,7 +237,7 @@ ingress:
   pathType: Prefix
 
   hosts:
-    - grafana.snbx.k8s.infra-lab.xyz
+    - chart-example.local
   ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
   extraPaths: []
   # - path: /*
@@ -275,10 +275,7 @@ nodeSelector: {}
 ## Tolerations for pod assignment
 ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 ##
-tolerations:
-  - key: infra
-    operator: Equal
-    value: "true"
+tolerations: []
 
 ## Affinity for pod assignment (evaluated as template)
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
@@ -326,11 +323,11 @@ extraContainerVolumes: []
 ##
 persistence:
   type: pvc
-  enabled: true
-  storageClassName: standard
+  enabled: false
+  # storageClassName: default
   accessModes:
     - ReadWriteOnce
-  size: 2Gi
+  size: 10Gi
   # annotations: {}
   finalizers:
     - kubernetes.io/pvc-protection
@@ -389,7 +386,6 @@ initChownData:
 # Administrator credentials when not using an existing secret (see below)
 adminUser: admin
 # adminPassword: strongpassword
-adminPassword: admin
 
 # Use an existing secret for the admin user.
 admin:
@@ -1246,3 +1242,4 @@ extraObjects: []
   #     data:
   #       - key: grafana-admin-password
   #         name: adminPassword
+

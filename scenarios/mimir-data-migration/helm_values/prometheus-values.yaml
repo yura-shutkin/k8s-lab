@@ -1,0 +1,317 @@
+---
+nameOverride: ""
+namespaceOverride: ""
+kubeTargetVersionOverride: ""
+kubeVersionOverride: ""
+fullnameOverride: ""
+commonLabels: {}
+
+crds:
+  enabled: true
+
+defaultRules:
+  create: false
+additionalPrometheusRulesMap: {}
+
+global:
+  rbac:
+    create: true
+    createAggregateClusterRoles: false
+    pspEnabled: false
+    pspAnnotations: {}
+  imageRegistry: ""
+  imagePullSecrets: []
+
+windowsMonitoring:
+  enabled: false
+
+prometheus-windows-exporter:
+  prometheus:
+    monitor:
+      enabled: false
+      jobLabel: jobLabel
+
+alertmanager:
+  enabled: false
+
+grafana:
+  enabled: false
+
+kubernetesServiceMonitors:
+  enabled: true
+
+kubeApiServer:
+  enabled: true
+
+kubelet:
+  enabled: true
+
+kubeControllerManager:
+  enabled: false
+
+coreDns:
+  enabled: true
+
+kubeDns:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeProxy:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
+
+kube-state-metrics:
+  namespaceOverride: ""
+  rbac:
+    create: true
+  releaseLabel: true
+  prometheus:
+    monitor:
+      enabled: true
+  selfMonitor:
+    enabled: false
+
+nodeExporter:
+  enabled: true
+  operatingSystems:
+    linux:
+      enabled: true
+    darwin:
+      enabled: true
+
+prometheus-node-exporter:
+  namespaceOverride: ""
+  podLabels:
+    jobLabel: node-exporter
+  releaseLabel: true
+  extraArgs:
+    - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+    - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$
+  service:
+    portName: http-metrics
+  prometheus:
+    monitor:
+      enabled: true
+  rbac:
+    pspEnabled: false
+
+prometheusOperator:
+  enabled: true
+  revisionHistoryLimit: 2
+  tls:
+    enabled: true
+    tlsMinVersion: VersionTLS13
+    internalPort: 10250
+  admissionWebhooks:
+    failurePolicy: ""
+    timeoutSeconds: 10
+    enabled: true
+    caBundle: ""
+    annotations: {}
+    patch:
+      enabled: true
+      image:
+        registry: registry.k8s.io
+        repository: ingress-nginx/kube-webhook-certgen
+        tag: v20221220-controller-v1.5.1-58-g787ea74b6
+        sha: ""
+        pullPolicy: IfNotPresent
+      resources: {}
+      priorityClassName: ""
+      annotations: {}
+      podAnnotations: {}
+      nodeSelector: {}
+      affinity: {}
+      tolerations: []
+      securityContext:
+        runAsGroup: 2000
+        runAsNonRoot: true
+        runAsUser: 2000
+        seccompProfile:
+          type: RuntimeDefault
+    createSecretJob:
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+          - ALL
+    patchWebhookJob:
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+          - ALL
+    certManager:
+      enabled: false
+  namespaces: {}
+  denyNamespaces: []
+  alertmanagerInstanceNamespaces: []
+  alertmanagerConfigNamespaces: []
+  prometheusInstanceNamespaces: []
+  thanosRulerInstanceNamespaces: []
+  networkPolicy:
+    enabled: false
+  logFormat: json
+  logLevel: error
+  kubeletService:
+    enabled: true
+    namespace: kube-system
+    name: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 200Mi
+  hostNetwork: false
+  verticalPodAutoscaler:
+    enabled: false
+  image:
+    registry: quay.io
+    repository: prometheus-operator/prometheus-operator
+    pullPolicy: IfNotPresent
+  prometheusConfigReloader:
+    image:
+      registry: quay.io
+      repository: prometheus-operator/prometheus-config-reloader
+    enableProbe: false
+    resources: {}
+      # requests:
+      #   cpu: 200m
+      #   memory: 50Mi
+      # limits:
+      #   cpu: 200m
+      #   memory: 50Mi
+
+  prometheusInstanceSelector: ""
+  alertmanagerInstanceSelector: ""
+  thanosRulerInstanceSelector: ""
+  secretFieldSelector: "type!=kubernetes.io/dockercfg,type!=kubernetes.io/service-account-token,type!=helm.sh/release.v1"
+
+prometheus:
+  enabled: true
+  agentMode: false
+  annotations: {}
+  networkPolicy:
+    enabled: false
+  serviceAccount:
+    create: true
+  thanosService:
+    enabled: false
+  thanosServiceMonitor:
+    enabled: false
+  thanosServiceExternal:
+    enabled: false
+  thanosIngress:
+    enabled: false
+
+  ingress:
+    enabled: true
+    hosts:
+      - prom.loc
+
+  ingressPerReplica:
+    enabled: false
+
+  serviceMonitor:
+    selfMonitor: true
+
+  prometheusSpec:
+    disableCompaction: false
+    scrapeInterval: ""
+    scrapeTimeout: ""
+    evaluationInterval: ""
+    listenLocal: false
+    enableAdminAPI: false
+    version: ""
+    web: {}
+    exemplars: ""
+    enableFeatures: []
+    image:
+      registry: quay.io
+      repository: prometheus/prometheus
+      tag: v2.47.1
+    enableRemoteWriteReceiver: false
+    replicaExternalLabelName: ""
+    replicaExternalLabelNameClear: false
+    prometheusExternalLabelName: ""
+    prometheusExternalLabelNameClear: false
+    ## External URL at which Prometheus will be reachable.
+    externalUrl: ""
+    nodeSelector: {}
+    secrets: []
+    configMaps: []
+    query: {}
+    ruleNamespaceSelector: {}
+    ruleSelectorNilUsesHelmValues: true
+    ruleSelector: {}
+    serviceMonitorSelectorNilUsesHelmValues: true
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: true
+    podMonitorSelector: {}
+    podMonitorNamespaceSelector: {}
+    probeSelectorNilUsesHelmValues: true
+    probeSelector: {}
+    probeNamespaceSelector: {}
+    scrapeConfigSelectorNilUsesHelmValues: true
+    scrapeConfigSelector: {}
+    scrapeConfigNamespaceSelector: {}
+
+    retention: 1h
+    retentionSize: ""
+
+    tsdb:
+      outOfOrderTimeWindow: 0s
+    walCompression: true
+    paused: false
+    replicas: 1
+    shards: 1
+    logLevel: info
+    logFormat: json
+    routePrefix: /
+    podMetadata: {}
+    podAntiAffinity: ""
+    podAntiAffinityTopologyKey: kubernetes.io/hostname
+
+    remoteRead: []
+    additionalRemoteRead: []
+
+    remoteWrite:
+      - url: http://mimir-gateway.mimir.svc.cluster.local/api/v1/push
+        headers:
+          X-Scope-OrgID: prom
+        name: mimir
+
+    additionalRemoteWrite: []
+    remoteWriteDashboards: false
+
+    resources: {}
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+  additionalRulesForClusterRole: []
+  additionalServiceMonitors: []
+  additionalPodMonitors: []
+
+thanosRuler:
+  enabled: false
+
+cleanPrometheusOperatorObjectNames: false

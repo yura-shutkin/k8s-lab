@@ -71,3 +71,11 @@ render: ##			Render chart
 		REPO_NAME=$(REPO_NAME) \
 		CHART_NAME=$(CHART_NAME) \
 		CHART_VERSION=$(CHART_VERSION)
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: fix-storage
+fix-storage: ##			Fix storage in minikube
+	@kubectl -n ${NS} apply -f minikube-pv-hack

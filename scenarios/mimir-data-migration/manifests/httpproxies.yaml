@@ -1,0 +1,59 @@
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: console
+  namespace: minio
+spec:
+  virtualhost:
+    fqdn: minio.loc
+  routes:
+    - services:
+        - name: console
+          port: 9090
+    - conditions:
+        - prefix: /
+      enableWebsockets: true
+      services:
+        - name: console
+          port: 9090
+
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: console
+  namespace: s3
+spec:
+  virtualhost:
+    fqdn: minio.loc
+  routes:
+    - services:
+        - name: console
+          port: 80
+    - conditions:
+        - prefix: /
+      enableWebsockets: true
+      services:
+        - name: console
+          port: 80
+
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  virtualhost:
+    fqdn: grafana.loc
+  routes:
+    - services:
+        - name: grafana
+          port: 80
+    - conditions:
+        - prefix: /
+      enableWebsockets: true
+      services:
+        - name: grafana
+          port: 80

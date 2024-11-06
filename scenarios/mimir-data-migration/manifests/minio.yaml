@@ -1,0 +1,147 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: s3
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minio-sa
+  namespace: s3
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    v1.min.io/tenant: minio
+  name: minio-env-configuration
+  namespace: s3
+type: Opaque
+data:
+  config.env: ZXhwb3J0IE1JTklPX0JST1dTRVI9Im9uIgpleHBvcnQgTUlOSU9fUk9PVF9VU0VSPSJBSVBJU1RJTFJWM0FBM1lUIgpleHBvcnQgTUlOSU9fUk9PVF9QQVNTV09SRD0iNUJIMlAwUlBZUlRNSlZZVDRaUDRTMVZUQkZEWVBJRkUiCmV4cG9ydCBNSU5JT19TVE9SQUdFX0NMQVNTX1NUQU5EQVJEPSJFQzowIg==
+
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  labels:
+    v1.min.io/tenant: minio
+  name: minio-secret
+  namespace: s3
+data:
+  accesskey: "bm9yU2JvWVhRNldtalk1bg=="
+  secretkey: "Y3VwRjZuT0RGcTRBS21rQlhQOGNBT20ySmh4VnJZZG8="
+immutable: true
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    v1.min.io/tenant: minio
+  name: minio-user-0
+  namespace: s3
+type: Opaque
+data:
+  CONSOLE_ACCESS_KEY: bm9yU2JvWVhRNldtalk1bg==
+  CONSOLE_SECRET_KEY: Y3VwRjZuT0RGcTRBS21rQlhQOGNBT20ySmh4VnJZZG8=
+immutable: true
+
+---
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: minio
+  namespace: s3
+spec:
+  configuration:
+    name: minio-env-configuration
+  credsSecret:
+    name: minio-secret
+  image: minio/minio:RELEASE.2024-08-26T15-33-07Z
+  imagePullSecret: {}
+  mountPath: /export
+  pools:
+    - affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: v1.min.io/tenant
+                    operator: In
+                    values:
+                      - minio
+                  - key: v1.min.io/pool
+                    operator: In
+                    values:
+                      - pool-0
+              topologyKey: kubernetes.io/hostname
+      name: pool-0
+      resources:
+        limits:
+          cpu: "1"
+          memory: 2Gi
+        requests:
+          cpu: "1"
+          memory: 2Gi
+      runtimeClassName: ""
+      servers: 1
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: "10737418240"
+          storageClassName: standard
+        status: {}
+      volumesPerServer: 1
+  requestAutoCert: false
+  users:
+    - name: minio-user-0
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cli
+  namespace: s3
+spec:
+  ingressClassName: contour
+  rules:
+    - host: minio.s3.loc
+      http:
+        paths:
+          - backend:
+              service:
+                name: minio-console
+                port:
+                  name: http-console
+            path: /
+            pathType: Prefix
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: s3
+  namespace: s3
+spec:
+  ingressClassName: contour
+  rules:
+    - host: s3.loc
+      http:
+        paths:
+          - backend:
+              service:
+                name: minio
+                port:
+                  name: http-minio
+            path: /
+            pathType: Prefix
