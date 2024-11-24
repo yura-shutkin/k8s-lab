@@ -4,6 +4,30 @@ help: ## 				Show this help
 SCENARIO_NAME=$(shell pwd | xargs basename)# __hidethis__
 
 ################################################################################
+### Run all ####################################################################
+################################################################################
+
+.PHONY: run-all
+run-all: ##			Deploy apps
+	@$(MAKE) contour-install
+	@$(MAKE) kps-install
+	@$(MAKE) cnpg-op-install
+	@$(MAKE) minio-op-install
+	@$(MAKE) minikube-fix-permissions
+	@$(MAKE) minio-tenant-deploy
+	@$(MAKE) cnpg-cluster-deploy
+	@$(MAKE) pgsql-srv-deploy
+	@$(MAKE) grafana-install
+
+################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: minikube-fix-permissions
+minikube-fix-permissions: ##	Fix permissions in minikube localpv
+	@kubectl apply -f manifests/minikube-fix-permissions.yaml
+
+################################################################################
 ### Contour ####################################################################
 ################################################################################
 
@@ -33,11 +57,6 @@ kps-install: ##			Install kps
 	@cd ../../manifests/kube-prometheus-stack && \
 		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/kube-prom-stack-values.yaml"
 
-.PHONY: kps-fix-storage
-kps-fix-storage: ##		Fix storage in minikube
-	@cd ../../manifests/kube-prometheus-stack && \
-		make fix-storage
-
 ################################################################################
 ### Grafana ####################################################################
 ################################################################################
@@ -52,11 +71,6 @@ grafana-helm-chart-update: ##	Add and refresh grafana's helm chart repo
 grafana-install: ##		Install grafana
 	@cd ../../manifests/grafana && \
 		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/grafana-values.yaml"
-
-.PHONY: grafana-fix-storage
-grafana-fix-storage: ##		Fix storage in minikube
-	@cd ../../manifests/grafana && \
-		make fix-storage
 
 ################################################################################
 ### CloudNative PG operator ####################################################
@@ -83,18 +97,6 @@ cnpg-op-uninstall: ##		Uninstall CloudNative PG operator
 			NS=cnpg-system
 
 ################################################################################
-### CloudNative PG operator ####################################################
-################################################################################
-
-.PHONY: apply-manifests
-apply-manifests: ##		Apply manifests
-	@kubectl apply -f manifests
-
-.PHONY: delete-manifests
-delete-manifests: ##		Delete manifests
-	@kubectl delete -f manifests
-
-################################################################################
 ### MinIO operator #############################################################
 ################################################################################
 
@@ -107,3 +109,79 @@ minio-op-install: ##		Install CloudNative PG operator
 minio-op-uninstall: ##		Uninstall CloudNative PG operator
 	@cd ../../manifests/minio && \
 		make uninstall
+
+################################################################################
+### MinIO Tenant ###############################################################
+################################################################################
+
+.PHONY: minio-tenant-deploy
+minio-tenant-deploy: ##		Deploy CNPG pgsql cluster
+	@kubectl apply -f manifests/minio.yaml
+
+.PHONY: minio-tenant-replace
+minio-tenant-replace: ##		Redeploy CNPG PGSQL cluster (with replace)
+	@kubectl replace -f manifests/minio.yaml
+
+.PHONY: minio-tenant-delete
+minio-tenant-delete: ##		Delete CNPG cluster
+	@kubectl delete -f manifests/minio.yaml
+
+################################################################################
+### CloudNative Cluster ########################################################
+################################################################################
+
+.PHONY: cnpg-cluster-deploy
+cnpg-cluster-deploy: ##		Deploy CNPG pgsql cluster
+	@kubectl apply -f manifests/pgsql-cluster.yaml
+
+.PHONY: cnpg-cluster-replace
+cnpg-cluster-replace: ##		Redeploy CNPG PGSQL cluster (with replace)
+	@kubectl replace -f manifests/pgsql-cluster.yaml
+
+.PHONY: cnpg-cluster-delete
+cnpg-cluster-delete: ##		Delete CNPG cluster
+	@kubectl delete -f manifests/pgsql-cluster.yaml
+
+################################################################################
+### Simple PGSQL server ########################################################
+################################################################################
+
+.PHONY: pgsql-srv-deploy
+pgsql-srv-deploy: ##		Deploy standalone PGSQL server
+	@kubectl apply -f manifests/pgsql-srv.yaml
+
+.PHONY: pgsql-srv--delete
+pgsql-srv--delete: ##		Delete standalone PGSQL server
+	@kubectl delete -f manifests/pgsql-srv.yaml
+
+################################################################################
+### CloudNative Cluster Replica of PGSQL server ################################
+################################################################################
+
+.PHONY: cnpg-cluster-repl-deploy
+cnpg-cluster-repl-deploy: ##	Deploy CNPG pgsql cluster from PGSQL server basebackup
+	@kubectl apply -f manifests/pgsql-cluster-replica.yaml
+
+.PHONY: cnpg-cluster-repl-replace
+cnpg-cluster-repl-replace: ##	Redeploy CNPG pgsql cluster from PGSQL server basebackup (repalce)
+	@kubectl replace -f manifests/pgsql-cluster-replica.yaml
+
+.PHONY: cnpg-cluster-repl-delete
+cnpg-cluster-repl-delete: ##	Delete CNPG pgsql cluster from PGSQL server basebackup
+	@kubectl delete -f manifests/pgsql-cluster-replica.yaml
+
+################################################################################
+### CloudNative Cluster Replica of PGSQL server from backup ####################
+################################################################################
+
+.PHONY: cnpg-cluster-back-deploy
+cnpg-cluster-back-deploy: ##	Deploy CNPG pgsql cluster from precise backup
+	@kubectl apply -f manifests/pgsql-cluster-replica.yaml
+
+.PHONY: cnpg-cluster-back-replace
+cnpg-cluster-back-replace: ##	Redeploy CNPG PGSQL cluster from precise backup (with replace)
+	@kubectl replace -f manifests/pgsql-cluster-replica.yaml
+
+.PHONY: cnpg-cluster-back-delete
+cnpg-cluster-back-delete: ##	Delete CNPG cluster from precise backup
+	@kubectl delete -f manifests/pgsql-cluster-replica.yaml

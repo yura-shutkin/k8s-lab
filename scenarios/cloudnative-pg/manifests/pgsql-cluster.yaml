@@ -60,15 +60,17 @@ metadata:
 spec:
   instances: 3
   description: "Test cluster with 3 instances without specifying image"
-  imageName: ghcr.io/cloudnative-pg/postgresql:14
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.4
   imagePullPolicy: IfNotPresent
-#  https://cloudnative-pg.io/documentation/1.24/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapInitDB
-#  bootstrap:
-#    initdb:
-#      database: app
-#      owner: app
-#      secret:
-#        name: app-secret
+  #  https://cloudnative-pg.io/documentation/1.24/cloudnative-pg.v1/#postgresql-cnpg-io-v1-BootstrapInitDB
+  bootstrap:
+    initdb:
+      localeCollate: en_US.utf8
+      localeCType: en_US.utf8
+  #     database: app
+  #     owner: app
+  #     secret:
+  #       name: app-secret
   walStorage:
     storageClass: standard
     size: 128Mi

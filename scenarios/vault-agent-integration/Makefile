@@ -4,6 +4,14 @@ help: ## 				Show this help
 SCENARIO_NAME=$(shell pwd | xargs basename)# __hidethis__
 
 ################################################################################
+### Minikube ###################################################################
+################################################################################
+
+.PHONY: minikube-fix-permissions
+minikube-fix-permissions: ##	Fix permissions in minikube localpv
+	@kubectl apply -f manifests/minikube-fix-permissions.yaml
+
+################################################################################
 ### Contour ####################################################################
 ################################################################################
 
@@ -36,11 +44,6 @@ vault-helm-chart-update: ##	Add and refresh vault's helm chart repo
 vault-install: ##			Install vault
 	@cd ../../manifests/vault && \
 		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/vault-values.yaml"
-
-.PHONY: vault-minikube-fix-storage
-vault-minikube-fix-storage: ##	Fix permissions in minikube storage
-	@cd ../../manifests/vault && \
-		make fix-storage
 
 .PHONY: vault-init
 vault-init: ##			Init vault

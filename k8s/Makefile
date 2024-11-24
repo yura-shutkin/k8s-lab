@@ -175,7 +175,7 @@ minikube-profiles: ##		Show minikube profiles
 
 .PHONY: minikube-tunnel
 minikube-tunnel: ##		Start service to access LB in k8s https://minikube.sigs.k8s.io/docs/handbook/accessing/
-	@minikube -p $(MINI_CLUSTER_NAME) tunnel
+	@sudo minikube -p $(MINI_CLUSTER_NAME) tunnel
 
 ################################################################################
 ### Kind #######################################################################
