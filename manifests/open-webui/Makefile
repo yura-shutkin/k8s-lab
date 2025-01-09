@@ -14,7 +14,7 @@ include ../helm.mk
 REPO_NAME=open-webui
 REPO_URL=https://helm.openwebui.com/
 CHART_NAME=open-webui
-CHART_VERSION=4.1.0
+CHART_VERSION=5.1.1
 RELEASE_NAME=open-webui
 NS=local-llm
 VALUES_FILE=values.yaml
