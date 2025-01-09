@@ -6,6 +6,7 @@ NS=# __hidethis__
 RELEASE_NAME=# __hidethis__
 VALUES_FILE=# __hidethis__
 HISTORY_MAX=2# __hidethis__
+CUSTOM_MESSAGE=# __hidethis__
 ####
 
 .PHONY: helm-plugin-diff-install
@@ -65,3 +66,7 @@ helm-template: ##			Render helm chart # __hidethis__
 .PHONY: kubectl-custom-manifests-apply
 kubectl-custom-manifests-apply: ##	Apply custom manifests # __hidethis__
 	@kubectl -n ${NS} apply -f custom-manifests
+
+.PHONE: custom-message
+custom-message: ##	Print custom message # __hidethis__
+	@echo ${CUSTOM_MESSAGE}

@@ -4,6 +4,19 @@ help: ## 				Show this help
 SCENARIO_NAME=$(shell pwd | xargs basename)# __hidethis__
 
 ################################################################################
+### Run all ####################################################################
+################################################################################
+
+.PHONY: run-all
+run-all: ##			Deploy apps
+	@$(MAKE) minikube-fix-permissions
+	@$(MAKE) contour-install
+	@$(MAKE) vault-install
+	@$(MAKE) vault-init
+	@$(MAKE) vault-unseal
+	@$(MAKE) vault-set
+
+################################################################################
 ### Minikube ###################################################################
 ################################################################################
 
@@ -27,6 +40,21 @@ contour-install: ##		Install contour
 		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/contour-values.yaml"
 
 ################################################################################
+### ValKey #####################################################################
+################################################################################
+
+.PHONY: valkey-helm-chart-update
+valkey-helm-chart-update: ##	Add and refresh valkey's helm chart repo
+	-@cd ../../manifests/valkey && \
+		make repo-add && \
+		make repo-update
+
+.PHONY: valkey-install
+valkey-install: ##		Install valkey
+	@cd ../../manifests/valkey && \
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/valkey-values.yaml"
+
+################################################################################
 ### Vault ######################################################################
 ################################################################################
 VAULT_URL=http://vault.loc
@@ -37,7 +65,7 @@ THRESHOLD=1
 .PHONY: vault-helm-chart-update
 vault-helm-chart-update: ##	Add and refresh vault's helm chart repo
 	-@cd ../../manifests/vault && \
-		make repo-add &&\
+		make repo-add && \
 		make repo-update
 
 .PHONY: vault-install
@@ -83,24 +111,31 @@ terraform-apply: ##		Apply terraform
 	terraform -chdir=terraform apply -auto-approve
 
 ################################################################################
-### WebApp #####################################################################
+### Open WebUI #################################################################
 ################################################################################
 
-.PHONY: webapp-install
-webapp-install: ##		Install WebApp
-	@cd ../../manifests/webapp && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/webapp-values.yaml"
+.PHONY: open-webui-helm-chart-update
+open-webui-helm-chart-update: ##	Add and refresh open-webui's helm chart repo
+	-@cd ../../manifests/open-webui && \
+		make repo-add && \
+		make repo-update
+
+.PHONY: open-webui-install
+open-webui-install: ##		Install open-webui
+	@cd ../../manifests/open-webui && \
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/open-webui-values.yaml"
 
 ################################################################################
-### Secrets Store CSI Driver ###################################################
+### Metrics Server #############################################################
 ################################################################################
 
-.PHONY: csi-install
-csi-install: ##			Install Secrets Store CSI Driver
-	@cd ../../manifests/secrets-store-csi-driver && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/csi-values.yaml"
+.PHONY: metrics-server-helm-chart-update
+metrics-server-helm-chart-update: ##Add and refresh metrics-server's helm chart repo
+	-@cd ../../manifests/metrics-server && \
+		make repo-add && \
+		make repo-update
 
-.PHONY: webapp-csi-install
-webapp-csi-install: ##		Install WebApp with CSI driver
-	@cd ../../manifests/webapp && \
-		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/webapp-csi-values.yaml"
+.PHONY: metrics-server-install
+metrics-server-install: ##	Install metrics-server
+	@cd ../../manifests/metrics-server && \
+		make install VALUES_FILE="../../scenarios/${SCENARIO_NAME}/helm_values/metrics-server-values.yaml"
